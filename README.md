@@ -6,7 +6,7 @@
 <h1 align="center">📜 NFSFU234 Form Validation Library (Reference Mirror)</h1>
 
 <p align="center">
-  <i>This is a mirror of the original <b>NFSFU234 Form Validation</b> library, built and maintained by <a href="https://github.com/NFORSHIFU234Dev">NFORSHIFU234 Dev</a>. Official development now lives under the <a href="https://github.com/NFSFU234FormValidation">NFSFU234FormValidation</a> organization.</i>
+  <i>This is a mirror of the original <b>NFSFU234 Form Validation</b> library, built and maintained by <a href="https://github.com/nforshifu234dev">NFORSHIFU234 Dev</a>. Official development now lives under the <a href="https://github.com/NFSFU234FormValidation">NFSFU234FormValidation</a> organization.</i>
 </p>
 
 <p align="center">
@@ -36,8 +36,8 @@
 
 ## 🚨 Important Note
 
-> ⚠️ **This repository is a reference mirror maintained by the creator — [NFORSHIFU234 Dev](https://github.com/NFORSHIFU234Dev).**  
-> 🚀 Active development, issue tracking, and new releases now live at the official organization repository:
+> ⚠️ **This repository is a reference mirror maintained by the creator — [NFORSHIFU234 Dev](https://github.com/nforshifu234dev).**  
+> 🚀 Active development, issue tracking, and new releases now live at the official organisation repository:
 
 👉 [**Main Repository → NFSFU234FormValidation/nfsfu234-form-validation**](https://github.com/NFSFU234FormValidation/nfsfu234-form-validation)
 
@@ -45,7 +45,7 @@
 
 ## 📚 Documentation & Resources
 
-- 📖 Docs: [nfsfu234-form-validation.vercel.app](https://nfsfu234-form-validation.vercel.app)
+- 📖 Docs: [nfsfu234-form-validation.netlify.app](https://nfsfu234-form-validation.netlify.app/)
 - 🧪 Examples: [github.com/NFSFU234FormValidation/examples](https://github.com/NFSFU234FormValidation/examples)
 - 📦 NPM: [npmjs.com/package/nfsfu234-form-validation](https://www.npmjs.com/package/nfsfu234-form-validation)
 
@@ -73,7 +73,7 @@ npm install nfsfu234-form-validation
 ## 📜 License
 
 Licensed under the [MIT License](https://github.com/NFSFU234FormValidation/nfsfu234-form-validation/blob/main/LICENSE)  
-Created by [NFORSHIFU234 Dev](https://github.com/NFORSHIFU234Dev)  
+Created by [NFORSHIFU234 Dev](https://www.nforshifu234dev.com)  
 Main development maintained by [NFSFU234FormValidation Org](https://github.com/NFSFU234FormValidation)
 
 ---
