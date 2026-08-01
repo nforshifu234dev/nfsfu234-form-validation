@@ -88,11 +88,11 @@ npm
 
 GitHub Repository
 
-[https://github.com/NFSFU234FormValidation/nfsfu234-form-validation](https://github.com/NFSFU234FormValidation/nfsfu234-form-validation)
+[https://github.com/nforshifu234dev/nfsfu234-form-validation](https://github.com/nforshifu234dev/nfsfu234-form-validation)
 
 Issue Tracker
 
-[https://github.com/NFSFU234FormValidation/nfsfu234-form-validation/issues](https://github.com/NFSFU234FormValidation/nfsfu234-form-validation/issues)
+[https://github.com/nforshifu234dev/nfsfu234-form-validation/issues](https://github.com/nforshifu234dev/nfsfu234-form-validation/issues)
 
 ---
 

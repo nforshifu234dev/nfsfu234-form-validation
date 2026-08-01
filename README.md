@@ -10,25 +10,25 @@ Built for **Vanilla JavaScript**, **React**, **Next.js**, **Vue**, **Svelte**, *
 
 <br>
 
-[![npm version](https://img.shields.io/npm/v/nfsfu234-form-validation.svg)](https://www.npmjs.com/package/nfsfu234-form-validation)
-[![npm downloads](https://img.shields.io/npm/dm/nfsfu234-form-validation.svg)](https://www.npmjs.com/package/nfsfu234-form-validation)
+[![npm version](https://img.shields.io/npm/v/nfsfu234-form-validation.svg)](https://www.npmjs.com/package/@nfsfu234/form-validation)
+[![npm downloads](https://img.shields.io/npm/dm/nfsfu234-form-validation.svg)](https://www.npmjs.com/package/@nfsfu234/form-validation)
 [![License: MIT](https://img.shields.io/npm/l/nfsfu234-form-validation)](LICENSE)
-[![GitHub Release](https://img.shields.io/github/v/release/NFSFU234FormValidation/nfsfu234-form-validation)](https://github.com/NFSFU234FormValidation/nfsfu234-form-validation/releases)
-[![GitHub Stars](https://img.shields.io/github/stars/NFSFU234FormValidation/nfsfu234-form-validation?style=social)](https://github.com/NFSFU234FormValidation/nfsfu234-form-validation)
-[![GitHub Issues](https://img.shields.io/github/issues/NFSFU234FormValidation/nfsfu234-form-validation)](https://github.com/NFSFU234FormValidation/nfsfu234-form-validation/issues)
-[![CI](https://github.com/NFSFU234FormValidation/nfsfu234-form-validation/actions/workflows/ci.yml/badge.svg)](https://github.com/NFSFU234FormValidation/nfsfu234-form-validation/actions/workflows/ci.yml)
+[![GitHub Release](https://img.shields.io/github/v/release/NFSFU234FormValidation/nfsfu234-form-validation)](https://github.com/nforshifu234dev/nfsfu234-form-validation/releases)
+[![GitHub Stars](https://img.shields.io/github/stars/NFSFU234FormValidation/nfsfu234-form-validation?style=social)](https://github.com/nforshifu234dev/nfsfu234-form-validation)
+[![GitHub Issues](https://img.shields.io/github/issues/NFSFU234FormValidation/nfsfu234-form-validation)](https://github.com/nforshifu234dev/nfsfu234-form-validation/issues)
+[![CI](https://github.com/nforshifu234dev/nfsfu234-form-validation/actions/workflows/ci.yml/badge.svg)](https://github.com/nforshifu234dev/nfsfu234-form-validation/actions/workflows/ci.yml)
 
 <br>
 
 [📚 Documentation](https://form-validation.nforshifu234dev.com)
 •
-[📦 npm](https://www.npmjs.com/package/nfsfu234-form-validation)
+[📦 npm](https://www.npmjs.com/package/@nfsfu234/form-validation)
 •
 [💻 Website Source](https://github.com/NFSFU234FormValidation/website)
 •
-[🐛 Report Bug](https://github.com/NFSFU234FormValidation/nfsfu234-form-validation/issues)
+[🐛 Report Bug](https://github.com/nforshifu234dev/nfsfu234-form-validation/issues)
 •
-[✨ Request Feature](https://github.com/NFSFU234FormValidation/nfsfu234-form-validation/issues)
+[✨ Request Feature](https://github.com/nforshifu234dev/nfsfu234-form-validation/issues)
 
 </div>
 

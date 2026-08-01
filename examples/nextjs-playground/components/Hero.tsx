@@ -105,7 +105,7 @@ export default function Hero() {
           </Link>
 
           <Link
-            href="https://www.npmjs.com/package/nfsfu234-form-validation"
+            href="https://www.npmjs.com/package/@nfsfu234/form-validation"
             target="_blank"
             className="btn btn-secondary"
           >
@@ -113,7 +113,7 @@ export default function Hero() {
           </Link>
 
           <Link
-            href="https://github.com/NFSFU234FormValidation/nfsfu234-form-validation"
+            href="https://github.com/nforshifu234dev/nfsfu234-form-validation"
             target="_blank"
             className="btn btn-secondary"
           >

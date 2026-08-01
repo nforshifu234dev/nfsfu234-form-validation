@@ -20,11 +20,11 @@ export const packageInfo = {
     "https://www.npmjs.com/package/@nfsfu234/form-validation",
 
   github:
-    "https://github.com/NFSFU234FormValidation/nfsfu234-form-validation",
+    "https://github.com/nforshifu234dev/nfsfu234-form-validation",
 
   issues:
-    "https://github.com/NFSFU234FormValidation/nfsfu234-form-validation/issues",
+    "https://github.com/nforshifu234dev/nfsfu234-form-validation/issues",
 
   releases:
-    "https://github.com/NFSFU234FormValidation/nfsfu234-form-validation/releases",
+    "https://github.com/nforshifu234dev/nfsfu234-form-validation/releases",
 };

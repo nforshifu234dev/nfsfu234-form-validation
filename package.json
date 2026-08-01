@@ -34,10 +34,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/NFSFU234FormValidation/nfsfu234-form-validation.git"
+    "url": "git+https://github.com/nforshifu234dev/nfsfu234-form-validation.git"
   },
   "bugs": {
-    "url": "https://github.com/NFSFU234FormValidation/nfsfu234-form-validation/issues"
+    "url": "https://github.com/nforshifu234dev/nfsfu234-form-validation/issues"
   },
   "directories": {
     "test": "test"

@@ -9,7 +9,7 @@ Thank you for considering contributing to the NFSFU234FormValidation library! Co
 2. **Clone the Repository**: Clone the forked repository to your local machine using the following command:
 
    ```sh
-   git clone https://github.com/NFSFU234FormValidation/nfsfu234-form-validation.git
+   git clone https://github.com/nforshifu234dev/nfsfu234-form-validation.git
    ```
 
 3. **Create a Branch**: Create a new branch for your contribution. Choose a descriptive name that reflects the nature of your contribution.
