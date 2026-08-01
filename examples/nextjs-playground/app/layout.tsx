@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "@nfsfu234/form-validation/css";
+
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://form-validation.nforshifu234dev.com"),

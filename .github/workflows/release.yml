@@ -2,113 +2,48 @@ name: Release
 
 on:
   push:
-    tags:
-      - "v*.*.*"
+    branches:
+      - main
 
 permissions:
   contents: write
+  issues: write
+  pull-requests: write
   id-token: write
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: release
   cancel-in-progress: false
 
 jobs:
-  verify:
-    name: Verify Package
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Type check
-        run: npm run typecheck
-
-      - name: Run tests
-        run: npm test
-
-      - name: Build package
-        run: npm run build
-
-      - name: Build API docs
-        run: npm run docs:build
-
-      - name: Verify package contents
-        run: |
-          npm pack
-          tar -tf *.tgz
-
-      - name: Upload package artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: npm-package
-          path: "*.tgz"
-
-  publish:
-    name: Publish to npm
-    needs: verify
+  release:
     runs-on: ubuntu-latest
 
     environment:
       name: npm
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          registry-url: https://registry.npmjs.org/
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build package
-        run: npm run build
-
-      - name: Build API docs
-        run: npm run docs:build
-
-      - name: Publish package
-        run: npm publish
-
-  release:
-    name: GitHub Release
-    needs: publish
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Generate Release Notes
-        id: notes
-        uses: mikepenz/release-changelog-builder-action@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          registry-url: https://registry.npmjs.org/
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run typecheck
+
+      - run: npm test
+
+      - run: npm run build
+
+      - run: npm run docs:build
+
+      - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          body: ${{ steps.notes.outputs.changelog }}
-          generate_release_notes: true
+        run: npx semantic-release

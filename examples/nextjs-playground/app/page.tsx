@@ -1,56 +1,84 @@
 import Hero from "@/components/Hero";
-import CompatibilityStatus from "@/components/CompatibilityStatus";
+
+import Installation from "@/components/Installation";
+
+import PackageInformation from "@/components/PackageInformation";
+
 import ValidationDemo from "@/components/ValidationDemo";
+
 import ApiPlayground from "@/components/ApiPlayground";
+
 import PasswordUtilities from "@/components/PasswordUtilities";
+
 import AjaxDemo from "@/components/AjaxDemo";
-import Console from "@/components/Console";
+
+import CompatibilityStatus from "@/components/CompatibilityStatus";
+
+import Navbar from "@/components/ui/Navbar";
+
+import Footer from "@/components/ui/Footer";
+
+import Resources from "@/components/ui/Resources";
 
 export default function HomePage() {
   return (
-    <main className="page-container">
-      <Hero />
+    <>
+      <Navbar />
 
-      <section className="section">
-        <CompatibilityStatus />
-      </section>
+      <main className="page-container">
+        <section className="hero">
+          <Hero />
+        </section>
 
-      <section className="section">
-        <ValidationDemo />
-      </section>
+        <section className="section">
+          <Resources />
+        </section>
 
-      <section className="section grid-2">
-        <ApiPlayground />
-        <Console />
-      </section>
+        <section className="section">
+          <PackageInformation />
+        </section>
 
-      <section className="section">
-        <PasswordUtilities />
-      </section>
+        <section className="section">
+          <Installation />
+        </section>
 
-      <section className="section">
-        <AjaxDemo />
-      </section>
+        <section
+          id="validation"
+          className="section"
+        >
+          <ValidationDemo />
+        </section>
 
-      <footer
-        style={{
-          marginTop: "96px",
-          marginBottom: "48px",
-          textAlign: "center",
-          color: "var(--brand-muted)",
-          borderTop: "1px solid var(--brand-border)",
-          paddingTop: "32px",
-        }}
-      >
-        <p>
-          Built with ❤️ using{" "}
-          <strong>NFSFU234 Form Validation v3</strong>.
-        </p>
+        <section
+          id="api"
+          className="section"
+        >
+          <ApiPlayground />
+        </section>
 
-        <p style={{ marginTop: "8px", fontSize: ".9rem" }}>
-          Official Next.js compatibility playground.
-        </p>
-      </footer>
-    </main>
+        <section
+          id="password"
+          className="section"
+        >
+          <PasswordUtilities />
+        </section>
+
+        <section
+          id="ajax"
+          className="section"
+        >
+          <AjaxDemo />
+        </section>
+
+        <section
+          id="compatibility"
+          className="section"
+        >
+          <CompatibilityStatus />
+        </section>
+      </main>
+
+      <Footer />
+    </>
   );
 }

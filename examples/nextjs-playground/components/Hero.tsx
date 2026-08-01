@@ -79,9 +79,9 @@ export default function Hero() {
             Installation
           </div>
 
-          <div className="console-body">
-            <pre className="console-output">
-{`npm install nfsfu234-form-validation`}
+          <div className="console-output">
+            <pre className="console console-small">
+{`npm install @nfsfu234/form-validation`}
             </pre>
           </div>
         </div>
@@ -134,7 +134,7 @@ export default function Hero() {
         <div className="card">
           <h3>Framework Agnostic</h3>
 
-          <p className="muted">
+          <p className="muted my-3">
             The same package powers Vanilla JavaScript, React,
             Next.js, Vue, Angular, Astro, Svelte, Vite and more.
           </p>
@@ -143,7 +143,7 @@ export default function Hero() {
         <div className="card">
           <h3>Production Ready</h3>
 
-          <p className="muted">
+          <p className="muted my-3">
             Built with TypeScript, zero runtime dependencies,
             tree-shakeable modules, CSS exports and modern package
             exports.
@@ -153,7 +153,7 @@ export default function Hero() {
         <div className="card">
           <h3>Quality Assurance</h3>
 
-          <p className="muted">
+          <p className="muted my-3">
             This playground is used before every release to ensure the
             published npm package behaves exactly as documented inside a
             real Next.js application.

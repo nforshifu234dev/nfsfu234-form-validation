@@ -200,6 +200,11 @@ textarea.console-output {
   padding: .85rem 1.2rem;
 
   font-weight: 600;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 
 .btn-primary {
@@ -230,6 +235,12 @@ textarea.console-output {
 
   color: var(--brand-orange);
 
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
 
 /* ==========================================================
@@ -386,15 +397,16 @@ label {
 }
 
 .console-output {
-
+  margin: 0;
+  padding: 16px;
   white-space: pre-wrap;
-
   word-break: break-word;
+  line-height: 1.8;
+}
 
-  line-height: 1.6;
-
-  font-size: .9rem;
-
+.console-small {
+  max-height: none;
+  min-height: auto;
 }
 
 /* ==========================================================
@@ -403,9 +415,9 @@ label {
 
 .hero {
 
-  padding-top: 80px;
+  padding-top: 20px;
 
-  padding-bottom: 80px;
+  padding-bottom: 20px;
 
 }
 
@@ -457,4 +469,53 @@ label {
 
 .rounded {
   border-radius: 20px;
+}
+
+.response-success {
+  color: var(--success);
+}
+
+.response-error {
+  color: var(--danger);
+}
+
+.code-block {
+  background: #101010;
+  color: #d4d4d4;
+  border-radius: 16px;
+  padding: 20px;
+  overflow-x: auto;
+  font-family: var(--mono-font);
+  font-size: .9rem;
+}
+
+@media (max-width: 640px) {
+
+  .page-container,
+  .container {
+    padding-inline: 16px;
+  }
+
+
+  .card {
+    padding: 20px;
+    border-radius: 18px;
+  }
+
+
+  .hero {
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+
+
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+}
+
+.loading {
+  opacity: .6;
+  pointer-events: none;
 }

@@ -10,6 +10,8 @@ All notable changes to the NFSFU234FormValidation Library will be documented in 
 - `.submit()` and `.validate()` are now always `async` and always return a `Promise` - including code paths that previously returned synchronously (e.g. `return false` when the form element isn't found). Any code checking the result directly (`if (form.submit() === false)`) needs to `await` it or use `.then()` instead. This was necessary to support the new async file/image validation (reading a file's size or decoding its dimensions can't happen synchronously).
 
 ### Added
+
+
 - **TypeDoc setup:** JSDoc comments added across the main class's public methods, plus a `typedoc.json` config and `npm run docs:build` script generating both an HTML API reference and a JSON model (`docs-json/api.json`). The JSON now ships with the published npm package, so a docs site can fetch the exact, always-current function list via CDN instead of hand-maintaining an "Available Functions" page that can drift from the code.
 - **File/image validation:** new `validateFile()`/`validateAllFile()` (and `.validateFile()`/`.validateAllFile()` on the class) for `<input type="file">` fields - required/min/max file count, accepted MIME types or extensions (`accept`), max size (`maxSizeMB`), and image dimension limits (`maxWidth`/`maxHeight`/`minWidth`/`minHeight`), all config-driven since there's no HTML-attribute equivalent for most of these. This is the library's first async field validator (reading image dimensions requires decoding the file first) - `.validate()`/`.submit()` are now `async` to accommodate it.
 - **Real test suite:** Jest + jsdom + ts-jest, covering the config registry, `validateInput` (both attribute-driven and config-override paths), the new file validator, `ExceptionHandler`'s log levels (including a regression test for the `'big'`/`error_1` fallthrough issue), and the format-check utilities.
@@ -17,8 +19,20 @@ All notable changes to the NFSFU234FormValidation Library will be documented in 
 - **Site-wide form config registry:** `NFSFU234FormValidation.configureForms([...])` + `.autoInit()` - declare validation rules for every form across a multi-page site in one place; each page automatically wires up whichever registered forms are actually present.
 - **Declarative field rules:** a field's config rule (`required`, `type`, `minLength`, `maxLength`, `pattern`, `message`) can now override or extend its HTML attributes, across input, textarea, select, radio, and checkbox validation.
 - Radio and checkbox validation are now included in `.validate()`/`.submit()` - previously they were silently skipped by the form-wide orchestrator and only worked if called individually.
+- `.nvmrc` pinning Node 22 for CI and local dev.
+- New `release-dry-run.yml` workflow (manual dispatch) that runs the full typecheck/test/build/docs pipeline plus `semantic-release --dry-run`, so the release plan can be sanity-checked before merging to `main`.
+- `npm-package` artifact upload from CI, so a build's exact publishable tarball is downloadable straight from the Actions run.
+
+- Example applications:
+  - Browser (vanilla HTML)
+  - Next.js App Router playground
 
 ### Changed
+
+- **Scoped the package to `@nfsfu234/form-validation`**, under the `nfsfu234` npm organization created ahead of launch day.
+- Release pipeline switched from tag-triggered (`push a v*.*.* tag → publish`) to trunk-based: `semantic-release` now runs on every push to `main`, determines the next version from Conventional Commits, and handles versioning, the changelog, the npm publish, and the GitHub release in one pass. The old three-job `verify` → `publish` → `release` pipeline is gone.
+- `.releaserc.cjs`: added `next`/`alpha` prerelease channels and maintenance-range branches, explicit `commit-analyzer` release rules (`feat` → minor; `fix`/`perf`/`refactor` → patch; `docs`/`style`/`test`/`build`/`ci`/`chore` → no release), and wired the npm tarball into the GitHub release assets.
+- CI (`ci.yml`, `release.yml`, `release-dry-run.yml`) now runs against the Node version pinned in the new `.nvmrc` instead of a hardcoded version.
 - Bumped `actions/setup-node` from v3 to v4, and replaced the archived `actions/create-release@v1` with `softprops/action-gh-release@v2` in CI.
 - `tsup` (the build tool) is now marked unmaintained upstream, with `tsdown` recommended as its successor - not an urgent migration, but worth planning for.
 - **License mismatch found on the docs website repo:** its README states GPL 3.0, while this library has always been MIT. Needs correcting on the website - a visitor evaluating this library for commercial use could be scared off by an incorrect copyleft license notice.
@@ -26,6 +40,7 @@ All notable changes to the NFSFU234FormValidation Library will be documented in 
 - Updated `homepage` to the current live domain.
 
 ### Fixed
+
 - Fixed a form-type detection bug in `submit()` where `instanceof HTMLFormElement || HTMLDivElement` was always `true` regardless of the actual element type.
 - Fixed an SSR-safety bug across six validators where an invalid log level (`'big'`) caused a "not in a browser environment" check to throw instead of gracefully returning `false` - this could crash a Next.js/SSR render if any of those functions were reached server-side.
 - Fixed the `error_1` log level in `ExceptionHandler` relying on accidental fallthrough behavior to throw; it's now an explicit case.
@@ -33,12 +48,23 @@ All notable changes to the NFSFU234FormValidation Library will be documented in 
 - Removed `postcss`, `autoprefixer`, `cssnano`, `postcss-cli`, `buffer`, `crypto-browserify`, `stream-browserify`, and `vm-browserify` from runtime `dependencies` - none are used at runtime by consumers; they were build-tooling-only or entirely unused.
 - Fixed a copy-paste bug in `togglePasswordVisibility` where the `hideIcon` branch referenced `showIcon`.
 - Unsafe type casts in radio/checkbox message handling (`.message as string` on values that could be plain strings) replaced with safe type narrowing.
+- Fixed `displayErrorInline()` inserting the inline error message via `parentNode.appendChild()`, which always placed it as the *last* child of the parent regardless of where the input field itself sat — on parents with multiple fields, an error message could render next to the wrong field. It's now inserted immediately after the input via `insertAdjacentElement("afterend", ...)`, so it always lands right below the field it belongs to.
+- CSS can now be imported directly from the package using:
+
+  import "@nfsfu234/form-validation/css";
 
 ### Removed
+
 - Removed `src/ts/index.ts`, a ~945-line dead duplicate of the main class with its own unrelated bugs - it was never used by the build and nothing imported it.
 - Removed `src/ts/formSubmission/submitHandler.ts`, an entire unused parallel form-submission implementation that had been superseded but never deleted.
 - Removed an empty, unreferenced `password-handling/passwordHandler.ts`.
 - Removed ~300 lines of commented-out legacy code left behind in `nfsfu234FormValidation.ts` and `formValidations/validate.ts`.
+
+### Housekeeping
+
+- Moved the standalone HTML demonstration from `tests/index.html` to `examples/browser/` to better distinguish manual browser examples from automated tests.
+- Moved generated TypeScript declaration files alongside the compiled JavaScript output and updated the package exports to match.
+- Added a complete Next.js App Router playground demonstrating validation, AJAX requests, password utilities, browser compatibility, package information, installation examples, API playground, and browser demo integration. The playground now consumes the published npm package instead of local source files, providing a realistic integration example.
 
 ## [3.0.0-beta] - 2024-08-25
 
@@ -69,19 +95,20 @@ All notable changes to the NFSFU234FormValidation Library will be documented in 
 🚨 **Repository Transfer:** This repository has been moved from nforshifu234dev's personal account to the NFSFU234FormValidation organization. You can now access it under the NFSFU234FormValidation organization by clicking [here](https://github.com/NFSFU234FormValidation/).
 
 ### Added
+
 - Added a new [`CODE_OF_CONDUCT`](CODE_OF_CONDUCT.md) file to promote a welcoming and inclusive community.
 
 ### Updated
+
 - Modified the [`CONTRIBUTING.md`](CONTRIBUTING.md) file to provide updated guidelines for contributors.
 - Updated the [`LICENSE`](LICENSE) file to reflect the project's license.
 - Modified the [`Package Information`](package.json) file to ensure accurate information.
 
 ### Removed
+
 - The `web` folder has been removed and transferred to its own repository. You can now find it in its dedicated repository [here](https://github.com/NFSFU234FormValidation/website/).
 
-
 ## [2.4.3] - 2024-01-25
-
 
 ## Important Note
 
@@ -89,31 +116,34 @@ All notable changes to the NFSFU234FormValidation Library will be documented in 
 
 - This observation was made during the release of version `2.4.2`.
 
-
 ### Added
+
 - Added `redirect()` function, used for redirecting a user to a specific url or path
 
 ### Updated
+
 - Website UI has been updated.
 - `copy-webpack-plugin` was updated to `v12.0.2` from `v11.0.0`
 - `css-minimizer-webpack-plugin` was updated to `v6.0.0` from `5.0.1`
 
-### Changed 
+### Changed
+
 - Modified the `_getFormDetails()` function
-    - Fixed the bug, `formValidator.getFormDetails is not a function`. This was due to a bundling error during the rlease of `v2.3.2`
-    - Had to add `index` variable when selcting textareas, and select tags. It was returning errors in previous versions.
+  - Fixed the bug, `formValidator.getFormDetails is not a function`. This was due to a bundling error during the rlease of `v2.3.2`
+  - Had to add `index` variable when selcting textareas, and select tags. It was returning errors in previous versions.
 
 - Modified the `_loading()` function
-    - Here I added the ability for the `loading()` function to select inut feilds with the type `search`
+  - Here I added the ability for the `loading()` function to select inut feilds with the type `search`
 
 - Modified the `submit()` function
-    - Modfied this function in the `else` part when checking if a `button` exists. The console error was a mess.
+  - Modfied this function in the `else` part when checking if a `button` exists. The console error was a mess.
 
 - Modified the `validateInput()` function
-    - Modifed this function to be able to check for `date` type in any input feild.
-    - Modified this function to display the prorper error message if an input is of type `url` and is `required`
+  - Modifed this function to be able to check for `date` type in any input feild.
+  - Modified this function to display the prorper error message if an input is of type `url` and is `required`
 
-### Removed 
+### Removed
+
 - None
 
 ## [2.3.2] - 2023-11-27
@@ -130,13 +160,14 @@ All notable changes to the NFSFU234FormValidation Library will be documented in 
 - Updated the `_getFormDetails()`. In the previous version, only inputs feilds were affected with the updates but now all for elements `inputs`, `textareas`, `select`.
 
 ### Removed
+
 - none
 
 ## [2.3.1] - 2023-11-25
 
 ### Information 🥳🥂
 
-- You can now follow `NFSFU234 Form Validation Library` on [X (Formerly Twitter)](https://x.com/nf_validator234/) and [Instagram](https://www.instagram.com/nf_validator234/). The username is  `nf_validator234`. 
+- You can now follow `NFSFU234 Form Validation Library` on [X (Formerly Twitter)](https://x.com/nf_validator234/) and [Instagram](https://www.instagram.com/nf_validator234/). The username is  `nf_validator234`.
 
 - Also you can send an email to `nf.validator234@gmail.com`
 
@@ -158,26 +189,28 @@ All notable changes to the NFSFU234FormValidation Library will be documented in 
 
 - Updated the private function , `_getFormDetails()` function. The function could only get form data based on only if the form element has the `data-attr-name` attribute. Then i thought to myself since a lot of forms use the name attribute why not add that attribute to the list. Find out more information in the `getFormDetails()` function that has been made visible
 
-
 ### Removed
+
 - Removed the Independence Day Banner.
 
 ## [2.3.0-patch] - 2023-10-01
 
 ### Fixed
+
 - Fixed the error of the new features `isOnline()` and `reset()` is not working in the initial `v2.3.0`.
+
 ## [2.3.0] - 2023-10-01
 
 ### Added
+
 - Added `isOnline()` function to check if a browser is connected to the internet or not
 - Added `reset()` function to reset all the inputs to an empty value
 
 ### Changed
+
 - Added comments to describe the `loading()` function released in the previous version(`v2.2.0`) in the `nfsfu234-form-validation.js` file located in the `src` folder
 
 - Reviewd and edited the `displayError() function` list details in the `web/json/function-list.json` file,
-
-
 
 ## [2.2.0] - 2023-09-25
 
@@ -188,36 +221,43 @@ All notable changes to the NFSFU234FormValidation Library will be documented in 
 - Added a new HTML class, `js-spin` to be added to the previous `spin` class for adding spining effect to an element.
 
 ## [2.1.0] - 2023-09-09
+
 ### Added
+
 - Added the `displayError()` function which accepts 1 parameter of data type object. See more details and how to use  it in the [ReadMe](ReadMe)
+
 ## [2.0.0] - 2023-08-26
 
 ### Breaking Change
-- Renamed the minified CSS output file from `nfsfu234-formValidation.min.css` to `nfsfu234FormValidation.min.css`, impacting how users refrence the minified CSS 
+
+- Renamed the minified CSS output file from `nfsfu234-formValidation.min.css` to `nfsfu234FormValidation.min.css`, impacting how users refrence the minified CSS
 
 ### Other Changes
+
 - Updated the banner from the versioning banner to a more static and elegant banner.
 
 ## [1.2.4] - 2023-08-26
 
 ### Changed
+
 - Improved the `ajax()` function for a  more clean experience.
 
 ### Fixed
-- Fixed the issue of `custom ajax request body not sending in browser rather getting the form details.`
 
+- Fixed the issue of `custom ajax request body not sending in browser rather getting the form details.`
 
 ## [1.2.3] - 2023-08-25
 
 ### Fixed
 
--   Fixed the `bcrypt is not defined` issue from both browser and node environments.
+- Fixed the `bcrypt is not defined` issue from both browser and node environments.
 
 ## [1.2.2] - 2023-08-25
 
 ### Fixed
 
 - Fixed the Netlify website issue and added the neccessary file for the website.
+
 ## [1.2.1] - 2023-08-25
 
 ### Added
@@ -241,12 +281,15 @@ All notable changes to the NFSFU234FormValidation Library will be documented in 
 ### Fixed
 
 - Fixed `ajax()` function to be able to correctly collect the URL from the ajaxOptions parameter or uses the current page URL.
+
 ## [1.0.0] - 2023-08-15
+
 🚀 Hello, World! My First Library - NFSFU234 Form Validation Library 📚
 
 I'm thrilled to introduce the first release of the NFSFU234 Form Validation Library! This marks a significant milestone as it's my very first library ever created. I'm excited to share with you a suite of functions designed to validate and interact with various form elements. Whether you're a developer building web applications or working with Node.js, these functions provide a solid foundation for accurate and reliable validation solutions.
 
 ### Added
+
 - `submit()` function for form validation and submission.
 - `ajax(AJAXOptions)` function for making AJAX requests.
 - `getAJAXResponse()` function for retrieving responses from AJAX requests.
@@ -273,14 +316,16 @@ I'm thrilled to introduce the first release of the NFSFU234 Form Validation Libr
 - `getPageUrl()` function for retrieving the current page URL.
 
 ### Changed
+
 - Improved validation logic for better accuracy.
 - Enhanced error message handling for better user feedback.
 
 ### Fixed
+
 - Resolved issue with incorrect error messages being displayed.
 
 ### Removed
+
 - None
 
 As my very first library creation, the NFSFU234 Form Validation Library holds a special place in my journey. 🌱 I'm eager to present these functions that have been crafted with care to streamline form validation processes. 🛠️ Your feedback and support are invaluable as I embark on this exciting journey of library development. 🚀 Thank you for being part of it! 🙏
-

@@ -36,7 +36,10 @@ const displayErrorInline = (inputField: HTMLInputElement | HTMLSelectElement | H
     }
 
     // Append the error message container to the parent of the input tag, placing it inline next to the input field.
-    parentNode.appendChild(errorMessageContainer);
+    inputField.insertAdjacentElement(
+        "afterend",
+        errorMessageContainer
+    );
 
     // Add the 'text-success' class to the container if it's a success message, making it visually distinct.
     if (isSuccess) {

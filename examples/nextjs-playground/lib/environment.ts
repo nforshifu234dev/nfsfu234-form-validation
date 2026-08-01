@@ -5,15 +5,15 @@ const clean = (version: string | undefined) =>
   version?.replace(/^[^\d]*/, "") ?? "Unknown";
 
 export const environment = {
-  library: {
+ library: {
     name: "@nfsfu234/form-validation",
     version:
-      pkg.dependencies["nfsfu234-form-validation"] ??
-      pkg.devDependencies?.["nfsfu234-form-validation"] ??
-      "Local Build",
-  },
+        pkg.dependencies["@nfsfu234/form-validation"] ??
+        pkg.devDependencies?.["@nfsfu234/form-validation"] ??
+        "Local Build",
+ },
 
-  next: clean(pkg.dependencies.next),
+ next: clean(pkg.dependencies.next),
 
   react: clean(pkg.dependencies.react),
 
@@ -21,11 +21,8 @@ export const environment = {
     pkg.devDependencies?.typescript
   ),
 
-  node:
-    typeof process !== "undefined"
-      ? process.version
-      : "Browser",
+  node: "Browser Runtime",
 
   installCommand:
-    "npm install nfsfu234-form-validation",
+    "npm install @nfsfu234/form-validation",
 };

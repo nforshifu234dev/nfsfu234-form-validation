@@ -44,50 +44,53 @@ Whether you're building a simple contact form or managing hundreds of forms acro
 
 Version **3.0.0** introduces the largest update in the project's history, bringing a redesigned developer experience, automated API documentation, improved TypeScript support, a modern documentation portal, and a cleaner architecture for long-term maintenance.
 
-## 📦 Installation
+## Installation
 
-Install the latest version from npm:
-
-```bash
-npm install nfsfu234-form-validation
-```
-
-Or install it using your preferred package manager.
-
-### pnpm
+> **📦 Package renamed:** As of `v3.0.0`, this package has moved from `nfsfu234-form-validation` to the **`@nfsfu234`** npm organization and is now published as **`@nfsfu234/form-validation`**. The old package name is deprecated on npm — installing it will show a warning pointing here, and it will not receive further updates.
 
 ```bash
-pnpm add nfsfu234-form-validation
+npm install @nfsfu234/form-validation
 ```
-
-### Yarn
 
 ```bash
-yarn add nfsfu234-form-validation
+yarn add @nfsfu234/form-validation
 ```
-
-### Bun
 
 ```bash
-bun add nfsfu234-form-validation
+pnpm add @nfsfu234/form-validation
 ```
 
----
+### Migrating from `nfsfu234-form-validation`
 
-## CDN
+1. **Uninstall the old package and install the new one:**
 
-If you're building without a bundler, you can load the library directly from jsDelivr.
-
-```html
-<script src="https://cdn.jsdelivr.net/npm/nfsfu234-form-validation/dist/js/nfsfu234FormValidation.global.js"></script>
-
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/nfsfu234-form-validation/dist/css/nfsfu234FormValidation.min.css"
-/>
+```bash
+   npm uninstall nfsfu234-form-validation
+   npm install @nfsfu234/form-validation
 ```
 
-No build tools or package manager are required.
+2. **Update your imports** — only the package specifier changes; every export, method, and behavior is identical:
+
+```diff
+   - import NFSFU234FormValidation from "nfsfu234-form-validation";
+   + import NFSFU234FormValidation from "@nfsfu234/form-validation";
+```
+
+3. **Update the CSS import**, if you use it:
+
+```diff
+   - import "nfsfu234-form-validation/css";
+   + import "@nfsfu234/form-validation/css";
+```
+
+1. **CDN users**, update the script `src`:
+
+```diff
+   - <script src="https://cdn.jsdelivr.net/npm/nfsfu234-form-validation"></script>
+   + <script src="https://cdn.jsdelivr.net/npm/@nfsfu234/form-validation"></script>
+```
+
+No API, behavior, or config changes are required beyond the name — this is purely a package identity move, done ahead of the `v3.0.0` launch to bring the library under its own npm organization.
 
 ---
 
@@ -157,7 +160,7 @@ Create a simple HTML form:
 Initialize the validator:
 
 ```javascript
-import NFSFU234FormValidation from "nfsfu234-form-validation";
+import NFSFU234FormValidation from "@nfsfu234/form-validation";
 
 const validator = new NFSFU234FormValidation({
   form: "#loginForm"

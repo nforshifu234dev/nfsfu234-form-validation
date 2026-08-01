@@ -13,12 +13,18 @@
   "module": "dist/js/nfsfu234FormValidation.mjs",
   "unpkg": "dist/js/nfsfu234FormValidation.global.js",
   "jsdelivr": "dist/js/nfsfu234FormValidation.global.js",
-  "types": "dist/types/nfsfu234FormValidation.d.ts",
+  "types": "dist/js/nfsfu234FormValidation.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/types/nfsfu234FormValidation.d.ts",
-      "import": "./dist/js/nfsfu234FormValidation.mjs",
-      "require": "./dist/js/nfsfu234FormValidation.cjs"
+      "types": "./dist/js/nfsfu234FormValidation.d.ts",
+      "import": {
+        "types": "./dist/js/nfsfu234FormValidation.d.mts",
+        "default": "./dist/js/nfsfu234FormValidation.mjs"
+      },
+      "require": {
+        "types": "./dist/js/nfsfu234FormValidation.d.ts",
+        "default": "./dist/js/nfsfu234FormValidation.cjs"
+      }
     },
     "./css": {
       "types": "./dist/types/css.d.ts",
@@ -83,8 +89,8 @@
     "dist/css/**/*.css",
     "dist/js/**/*.map",
     "dist/css/**/*.map",
-    "dist/types/**/*.d.ts",
-    "dist/types/**/*.d.cts",
+    "dist/js/**/*.d.ts",
+    "dist/js/**/*.d.cts",
     "docs-json/api.json"
   ],
   "devDependencies": {
