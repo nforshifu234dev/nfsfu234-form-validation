@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NFSFU234FormValidation — Local Test Harness</title>
+
+<!-- Adjust these two paths if this file doesn't live at /test/index.html -->
+<link rel="stylesheet" href="../dist/css/nfsfu234FormValidation.min.css">
+<script src="../dist/js/nfsfu234FormValidation.global.js"></script>
+
+<style>
+  :root {
+    --paper: #faf9f6;
+    --surface: #ffffff;
+    --ink: #1c1f26;
+    --ink-muted: #6b7280;
+    --border: #e4e1d9;
+    --pending: #9ca3af;
+    --pending-bg: #f3f4f6;
+    --valid: #1f8a5f;
+    --valid-bg: #e8f5ef;
+    --invalid: #c0392b;
+    --invalid-bg: #fbeae8;
+    --mono: "SF Mono", "IBM Plex Mono", "Cascadia Code", Consolas, monospace;
+    --sans: "Inter", "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+  }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 28px 24px 22px;
+  }
+
+  header .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin: 0 0 6px;
+  }
+
+  header h1 {
+    margin: 0 0 6px;
+    font-size: 22px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+  }
+
+  header p {
+    margin: 0;
+    color: var(--ink-muted);
+    font-size: 14px;
+    max-width: 640px;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 0;
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    .status-panel { position: static !important; border-left: none !important; border-top: 1px solid var(--border); }
+  }
+
+  main {
+    padding: 28px 24px 60px;
+  }
+
+  fieldset {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    padding: 20px 20px 22px;
+    margin: 0 0 18px;
+  }
+
+  legend {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    padding: 0 6px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 14px 0 6px;
+  }
+
+  label:first-of-type { margin-top: 0; }
+
+  label .hint {
+    font-weight: 400;
+    color: var(--ink-muted);
+    font-size: 12px;
+  }
+
+  input[type="text"], input[type="email"], input[type="url"],
+  input[type="date"], input[type="password"], textarea, select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 14px;
+    font-family: var(--sans);
+    transition: border-color 0.15s ease;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--ink);
+  }
+
+  textarea { min-height: 84px; resize: vertical; }
+
+  .radio-row, .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 400;
+    margin: 8px 0;
+  }
+
+  input[type="file"] {
+    width: 100%;
+    font-size: 13px;
+    padding: 8px 0;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  @media (max-width: 520px) {
+    .two-col { grid-template-columns: 1fr; }
+  }
+
+  button[type="submit"] {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 8px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 14px;
+    font-weight: 650;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+  }
+
+  button[type="submit"]:hover { opacity: 0.85; }
+  button[type="submit"]:active { opacity: 0.7; }
+
+  /* ---- Status panel: the signature element ---- */
+  .status-panel {
+    border-left: 1px solid var(--border);
+    padding: 28px 20px;
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .status-panel h2 {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin: 0 0 14px;
+  }
+
+  .ledger {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 24px;
+  }
+
+  .ledger-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: var(--pending-bg);
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  .ledger-row .field-name { color: var(--ink); }
+
+  .chip {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 2px 8px;
+    border-radius: 100px;
+    text-transform: uppercase;
+    background: var(--pending);
+    color: white;
+  }
+
+  .ledger-row.valid { background: var(--valid-bg); }
+  .ledger-row.valid .chip { background: var(--valid); }
+  .ledger-row.invalid { background: var(--invalid-bg); }
+  .ledger-row.invalid .chip { background: var(--invalid); }
+
+  .result-box {
+    background: #14161b;
+    color: #d5d8de;
+    border-radius: 8px;
+    padding: 14px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  .result-box .placeholder { color: #6b7280; }
+
+  footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 12px;
+    color: var(--ink-muted);
+    font-family: var(--mono);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">nfsfu234-form-validation — local test harness</p>
+  <h1>Every field type, one page, live results</h1>
+  <p>Not a demo — a working test rig. Fill fields in or out of spec and watch the ledger and the raw <code>submit()</code> result on the right update in real time.</p>
+</header>
+
+<div class="layout">
+  <main>
+    <form id="testForm">
+
+      <fieldset>
+        <legend>Text &amp; format checks</legend>
+
+        <label for="fullName">Full name <span class="hint">required</span></label>
+        <input type="text" id="fullName" name="fullName" required>
+
+        <div class="two-col">
+          <div>
+            <label for="email">Email <span class="hint">required, format-checked</span></label>
+            <input type="email" id="email" name="email" required>
+          </div>
+          <div>
+            <label for="website">Website <span class="hint">optional, format-checked</span></label>
+            <input type="url" id="website" name="website">
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div>
+            <label for="zip">ZIP code <span class="hint">required</span></label>
+            <input type="text" id="zip" name="zip" required>
+          </div>
+          <div>
+            <label for="dob">Date <span class="hint">required</span></label>
+            <input type="date" id="dob" name="dob" required>
+          </div>
+        </div>
+
+        <label for="bio">Bio <span class="hint">required, min 10 characters via config</span></label>
+        <textarea id="bio" name="bio" required></textarea>
+      </fieldset>
+
+      <fieldset>
+        <legend>Choice fields</legend>
+
+        <div>
+
+          <label for="plan">Plan <span class="hint">required</span></label>
+          <select id="plan" name="plan" required>
+            <option value="">Choose one…</option>
+            <option value="free">Free</option>
+            <option value="pro">Pro</option>
+            <option value="team">Team</option>
+          </select>
+
+        </div>
+
+        <label>Contact preference <span class="hint">required radio group</span></label>
+        <div class="radio-row">
+          <input type="radio" id="contactEmail" name="contactMethod" value="email" required>
+          <label for="contactEmail" style="margin:0;font-weight:400;">Email</label>
+        </div>
+        <div class="radio-row">
+          <input type="radio" id="contactSms" name="contactMethod" value="sms" required>
+          <label for="contactSms" style="margin:0;font-weight:400;">SMS</label>
+        </div>
+
+        <div class="checkbox-row" style="margin-top:16px;">
+          <input type="checkbox" id="terms" name="terms" required />
+          <label for="terms" style="margin:0;font-weight:400;">I agree to the terms <span class="hint">required</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>File &amp; image upload</legend>
+
+        <label for="avatar">Avatar <span class="hint">optional — PNG/JPEG, max 2MB, max 1000×1000px</span></label>
+        <input type="file" id="avatar" name="avatar" accept="image/png,image/jpeg" />
+      </fieldset>
+
+      <button type="submit">Run submit()</button>
+    </form>
+  </main>
+
+  <aside class="status-panel">
+    <h2>Live field status</h2>
+    <div class="ledger" id="ledger"></div>
+
+    <h2>Last submit() result</h2>
+    <div class="result-box" id="resultBox"><span class="placeholder">// run the form to see the result object here</span></div>
+  </aside>
+</div>
+
+<footer>dist/js/nfsfu234FormValidation.global.js</footer>
+
+<script>
+  // Config-driven rule for bio.minLength, demonstrating configureForms()
+  NFSFU234FormValidation.configureForms([
+    {
+      form: '#testForm',
+      fields: {
+        bio: {
+          required: true,
+          minLength: 10,
+          message: 'Bio needs at least 10 characters.'
+        },
+        avatar: {
+          required: false,
+          accept: ['image/png', 'image/jpeg'],
+          maxSizeMB: 2,
+          maxWidth: 1000,
+          maxHeight: 1000,
+          typeMessage: 'Please upload a PNG or JPEG image.',
+          sizeMessage: 'Your image must be under 2MB.',
+          dimensionMessage: 'Your image must be no larger than 1000x1000px.'
+        }
+      }
+    }
+  ]);
+
+  const form = new NFSFU234FormValidation({ form: 'testForm' });
+
+  const fieldIds = ['fullName', 'email', 'website', 'zip', 'dob', 'bio', 'plan', 'contactMethod', 'terms', 'avatar'];
+  const ledger = document.getElementById('ledger');
+  const resultBox = document.getElementById('resultBox');
+
+  function renderLedger(status) {
+    ledger.innerHTML = '';
+    fieldIds.forEach((name) => {
+      const row = document.createElement('div');
+      const state = status[name] || 'pending';
+      row.className = 'ledger-row ' + state;
+      row.innerHTML = `<span class="field-name">${name}</span><span class="chip">${state}</span>`;
+      ledger.appendChild(row);
+    });
+  }
+
+  renderLedger({});
+
+  document.getElementById('testForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const result = await form.submit();
+
+    resultBox.textContent = JSON.stringify(result, null, 2);
+
+    const status = {};
+    fieldIds.forEach((name) => { status[name] = 'valid'; });
+
+    if (result && result.data && typeof result.data === 'object') {
+      Object.keys(result.data).forEach((group) => {
+        const groupData = result.data[group]?.data;
+        if (Array.isArray(groupData)) {
+          groupData.forEach((err) => {
+            const el = err?.data;
+            if (el && el.name) status[el.name] = 'invalid';
+          });
+        }
+      });
+    }
+
+    renderLedger(status);
+  });
+</script>
+
+</body>
+</html>

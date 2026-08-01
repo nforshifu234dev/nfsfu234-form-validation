@@ -1,0 +1,460 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+@import "tailwindcss";
+
+/* ==========================================================
+   NFSFU234 Form Validation Playground
+   ========================================================== */
+
+:root {
+  color-scheme: light;
+
+  --brand-black: #0d0d0d;
+  --brand-ink: #1a1a1a;
+
+  --brand-cream: #fff8f2;
+  --brand-surface: #ffffff;
+
+  --brand-orange: #ff5f2e;
+  --brand-orange-light: #ff8a5c;
+  --brand-orange-soft: #fff0e8;
+
+  --brand-border: #ece5de;
+
+  --brand-muted: #6b6b6b;
+
+  --success: #16a34a;
+  --warning: #f59e0b;
+  --danger: #dc2626;
+  --info: #2563eb;
+
+  --display-font: "Space Grotesk", sans-serif;
+  --mono-font: "JetBrains Mono", monospace;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --brand-black: #f2f0ed;
+  --brand-ink: #f2f0ed;
+
+  --brand-cream: #0d0d0d;
+  --brand-surface: #17171a;
+
+  --brand-orange: #ff7a4d;
+  --brand-orange-light: #ffab85;
+  --brand-orange-soft: #2a180f;
+
+  --brand-border: #2a2a2a;
+
+  --brand-muted: #a1a1aa;
+}
+
+/* ==========================================================
+   Base
+   ========================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--brand-cream);
+  color: var(--brand-black);
+
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================
+   Typography
+   ========================================================== */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--display-font);
+  color: var(--brand-black);
+  line-height: 1.1;
+}
+
+code,
+pre,
+kbd,
+textarea.console-output {
+  font-family: var(--mono-font);
+}
+
+/* ==========================================================
+   Layout Helpers
+   ========================================================== */
+
+.page-container {
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+
+.section {
+  margin-top: 72px;
+}
+
+.section-title {
+  font-size: clamp(1.75rem, 2vw, 2.5rem);
+  margin-bottom: 12px;
+}
+
+.section-description {
+  color: var(--brand-muted);
+  max-width: 700px;
+}
+
+/* ==========================================================
+   Cards
+   ========================================================== */
+
+.card {
+  background: var(--brand-surface);
+
+  border: 1px solid var(--brand-border);
+
+  border-radius: 22px;
+
+  padding: 28px;
+
+  box-shadow:
+    0 2px 12px rgba(0,0,0,.04);
+
+  transition:
+    transform .25s ease,
+    box-shadow .25s ease,
+    border-color .25s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+
+  border-color: var(--brand-orange-light);
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.08);
+}
+
+/* ==========================================================
+   Grid
+   ========================================================== */
+
+.grid-2 {
+  display: grid;
+  gap: 24px;
+}
+
+.grid-3 {
+  display: grid;
+  gap: 24px;
+}
+
+@media (min-width: 900px) {
+
+  .grid-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .grid-3 {
+    grid-template-columns:
+      repeat(3,1fr);
+  }
+
+}
+
+/* ==========================================================
+   Buttons
+   ========================================================== */
+
+.btn {
+  border: none;
+
+  cursor: pointer;
+
+  transition: .25s ease;
+
+  border-radius: 14px;
+
+  padding: .85rem 1.2rem;
+
+  font-weight: 600;
+}
+
+.btn-primary {
+
+  background: var(--brand-orange);
+
+  color: white;
+
+}
+
+.btn-primary:hover {
+
+  background: var(--brand-orange-light);
+
+}
+
+.btn-secondary {
+
+  background: transparent;
+
+  border: 1px solid var(--brand-border);
+
+}
+
+.btn-secondary:hover {
+
+  border-color: var(--brand-orange);
+
+  color: var(--brand-orange);
+
+}
+
+/* ==========================================================
+   Inputs
+   ========================================================== */
+
+input,
+textarea,
+select {
+
+  width: 100%;
+
+  border-radius: 14px;
+
+  border: 1px solid var(--brand-border);
+
+  background: var(--brand-surface);
+
+  color: var(--brand-black);
+
+  padding: .9rem 1rem;
+
+  transition: .25s ease;
+
+}
+
+textarea {
+
+  min-height: 140px;
+
+  resize: vertical;
+
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+
+  outline: none;
+
+  border-color: var(--brand-orange);
+
+  box-shadow:
+    0 0 0 4px rgba(255,95,46,.15);
+
+}
+
+/* ==========================================================
+   Labels
+   ========================================================== */
+
+label {
+
+  display: block;
+
+  margin-bottom: .55rem;
+
+  font-weight: 600;
+
+}
+
+.field {
+
+  margin-bottom: 1.5rem;
+
+}
+
+/* ==========================================================
+   Status Pills
+   ========================================================== */
+
+.badge {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: .5rem;
+
+  padding: .45rem .8rem;
+
+  border-radius: 999px;
+
+  font-size: .85rem;
+
+  font-weight: 600;
+
+}
+
+.badge-success {
+
+  background: rgba(22,163,74,.12);
+
+  color: var(--success);
+
+}
+
+.badge-warning {
+
+  background: rgba(245,158,11,.12);
+
+  color: var(--warning);
+
+}
+
+.badge-danger {
+
+  background: rgba(220,38,38,.12);
+
+  color: var(--danger);
+
+}
+
+/* ==========================================================
+   Console
+   ========================================================== */
+
+.console {
+
+  background: #101010;
+
+  color: #d4d4d4;
+
+  border-radius: 20px;
+
+  overflow: hidden;
+
+}
+
+.console-header {
+
+  padding: 14px 18px;
+
+  background: #181818;
+
+  border-bottom: 1px solid #2b2b2b;
+
+  font-weight: 700;
+
+  font-family: var(--display-font);
+
+}
+
+.console-body {
+
+  padding: 18px;
+
+  min-height: 350px;
+
+  max-height: 650px;
+
+  overflow: auto;
+
+}
+
+.console-output {
+
+  white-space: pre-wrap;
+
+  word-break: break-word;
+
+  line-height: 1.6;
+
+  font-size: .9rem;
+
+}
+
+/* ==========================================================
+   Hero
+   ========================================================== */
+
+.hero {
+
+  padding-top: 80px;
+
+  padding-bottom: 80px;
+
+}
+
+.hero-title {
+
+  font-size: clamp(3rem,6vw,5rem);
+
+  margin: 0;
+
+}
+
+.hero-subtitle {
+
+  color: var(--brand-muted);
+
+  max-width: 760px;
+
+  margin-top: 24px;
+
+  font-size: 1.15rem;
+
+  line-height: 1.7;
+
+}
+
+/* ==========================================================
+   Utilities
+   ========================================================== */
+
+.orange {
+  color: var(--brand-orange);
+}
+
+.muted {
+  color: var(--brand-muted);
+}
+
+.mt {
+  margin-top: 24px;
+}
+
+.mb {
+  margin-bottom: 24px;
+}
+
+.center {
+  text-align: center;
+}
+
+.rounded {
+  border-radius: 20px;
+}

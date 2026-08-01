@@ -1,0 +1,185 @@
+/* Define custom CSS variables */
+:root {
+    --success: #4caf50;           /* Define a custom variable for success color */
+    --failure: #f44336;         /* Define a custom variable for failure color */
+    --warning: #ff9800;      /* Define a custom variable for warning color */
+    --white: #ffffff;         /* Define a custom variable for white color */
+    --black: #000000;      /* Define a custom variable for black color */
+  }
+  
+  /* Utility class for relative positioning */
+  .relative-position {
+    position: relative !important; /* Apply relative positioning to the element */
+  }
+  
+  /* Utility class for background color indicating success */
+  .bgSuccess {
+    background: var(--success) !important; /* Set background color to the defined success color */
+    color: var(--white) !important;        /* Set text color to white */
+  }
+  
+  /* Utility class for text color indicating success */
+  .text-success {
+    color: var(--success) !important; /* Set text color to the defined success color */
+  }
+  
+  /* Utility class for background color indicating failure */
+  .fail {
+    background: var(--failure) !important; /* Set background color to the defined failure color */
+    color: var(--white) !important;        /* Set text color to white */
+  }
+  
+  /* Utility class for text color indicating failure */
+  .text-failure,
+  .text-fail {
+    color: var(--failure) !important; /* Set text color to the defined failure color */
+  }
+  
+  /* Utility class for background color indicating warning */
+  .warning {
+    background: var(--warning) !important; /* Set background color to the defined warning color */
+    color: var(--white) !important;        /* Set text color to white */
+  }
+  
+  /* Utility class for input focus with error */
+  .input-focus-error {
+    border: 1px solid var(--failure) !important; /* Set border color to the defined failure color */
+    color: var(--failure) !important;           /* Set text color to the defined failure color */
+  }
+  
+  /* Utility class for input focus with success */
+  .input-focus-success {
+    border: 1px solid var(--success) !important; /* Set border color to the defined failure color */
+    color: var(--success) !important;           /* Set text color to the defined failure color */
+  }
+  
+  /* Utility class for inline error message */
+  .js-inline-message {
+    color: var(--failure);         /* Set text color to the defined failure color */
+    font-size: calc(100% - 0.3rem); /* Reduce font size slightly compared to parent element */
+    text-transform: uppercase;     /* Convert text to uppercase */
+    display: block; 
+    width: 100%;
+    margin: 5px 0;
+  }
+  
+  
+  
+  /* Styling for error container */
+  .js-errorMessageContainer {
+    position: absolute;         /* Absolute positioning to place it correctly */
+    top: 0;                     /* Position at the top of the container */
+    width: 100%;                /* Take the full width of the container */
+    height: -moz-max-content;
+    height: max-content;        /* Adjust height based on content inside */
+  }
+  
+  /* Styling for login error message container */
+  .js-errorMessageContainer .login-error-message-container {
+    position: relative;         /* Relative positioning for child elements */
+    width: clamp(100%, 80vw, 300px); /* Width is responsive between 100% and 300px */
+    background: red;            /* Background color for error container */
+    color: #fff;                /* Text color for error message */
+    border-radius: 10px;        /* Rounded corners for the container */
+    border: 1.5px solid red !important;    /* Red border for the container */
+    overflow: hidden;           /* Hide overflowing content */
+    margin-bottom: 10px;       /* Add space at the bottom of the container */
+    /* margin-top: -100px; */   /* (Commented out) Adjust top margin if needed */
+    display: none;              /* Initially hide the container */
+    transition: 0.5s margin ease-in-out; /* Add smooth transition for margin */
+  }
+  
+  /* Styling for the message inside error container */
+  .js-errorMessageContainer .login-error-message-container .message {
+    width: calc(100% - 50px);   /* Calculate width minus icon space */
+    height: 100%;               /* Take full height of the container */
+    padding: 0 0.3rem;          /* Add padding to the message */
+    min-height: 50px;           /* Set minimum height for the container */
+    display: flex;              /* Display as flex for centering content */
+    align-items: center;        /* Center vertically */
+    justify-content: center;    /* Center horizontally */
+    letter-spacing: 1.5px;      /* Add letter spacing for uppercase text */
+    text-transform: uppercase;  /* Convert text to uppercase */
+    text-align: center;         /* Center text within the container */
+  }
+  
+  /* Styling for the icon inside error container */
+  .js-errorMessageContainer .login-error-message-container .icon {
+    position: absolute;         /* Absolute positioning for the icon */
+    top: 0;                     /* Position at the top of the container */
+    right: 0;                   /* Position at the right of the container */
+    height: 100%;               /* Take full height of the container */
+    width: 50px;                /* Set width for the icon space */
+    background: #fff;           /* Background color for the icon space */
+    color: red;                 /* Icon color (red for error) */
+    display: flex;              /* Display as flex for centering content */
+    align-items: center;        /* Center vertically */
+    justify-content: center;    /* Center horizontally */
+  }
+  
+  /* Styling for SVG icon inside error container */
+  .js-errorMessageContainer .login-error-message-container .icon svg {
+    height: 60%;                /* Set height of the SVG icon */
+    width: 60%;                 /* Set width of the SVG icon */
+    fill: currentColor;         /* Set SVG icon fill color to current color (red) */
+  }
+  
+  /* Styling for active state of the error container */
+  .js-errorMessageContainer .login-error-message-container.active {
+    display: block !important; /* Display the container when active */
+  }
+  
+  /* Styling for success state of the error container */
+  .js-errorMessageContainer .login-error-message-container.success {
+    background: var(--success); /* Background color for success state */
+    border: 1.5px solid var(--success) !important; /* Border color for success state */
+  }
+  
+  /* Styling for success icon in the error container */
+  .js-errorMessageContainer .login-error-message-container.success .icon {
+    color: var(--success);      /* Icon color for success state */
+  }
+  
+  /* Keyframes animation for spinning */
+  @keyframes spin {
+    100% {
+        transform: rotate(360deg); /* Rotate the element fully */
+    }
+  }
+  
+  /* Styling for elements with the spin class */
+  .spin, 
+  .js-spin
+  {
+    animation: spin 1s infinite linear; /* Apply the spinning animation */
+  }
+
+  svg.spin, 
+  svg.js-spin
+  {
+    width: 25px;
+    height: 25px;
+  }
+  
+  /* Styling for show password button */
+  .cssShowPassword {
+    position: absolute;         /* Absolute positioning for the button */
+    bottom: 0;                  /* Position at the bottom of the container */
+    right: 0;                   /* Position at the right of the container */
+    height: 50px;               /* Set height for the button */
+    width: 50px;                /* Set width for the button */
+    background: #000;           /* Background color for the button */
+    color: #fff;                /* Text color for the button */
+    fill: #fff;                 /* Icon fill color for the button */
+    display: flex;              /* Display as flex for centering content */
+    align-items: center;        /* Center vertically */
+    justify-content: center;    /* Center horizontally */
+  }
+  
+  /* Styling for SVG icon inside show password button */
+  .cssShowPassword svg {
+    width: 25px;                /* Set width of the SVG icon */
+    height: 25px;               /* Set height of the SVG icon */
+  }
+  
+/*# sourceMappingURL=nfsfu234FormValidation.css.map */

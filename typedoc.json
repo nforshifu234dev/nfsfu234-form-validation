@@ -1,0 +1,11 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src/ts/nfsfu234FormValidation.ts"],
+  "out": "docs",
+  "json": "docs-json/api.json",
+  "name": "NFSFU234FormValidation API Reference",
+  "readme": "none",
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "sort": ["source-order"]
+}
