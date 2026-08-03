@@ -11,7 +11,8 @@ All notable changes to the NFSFU234FormValidation Library will be documented in 
 
 ### Added
 
-
+- **Bare (form-less) instantiation:** `new NFSFU234FormValidation(null)` now explicitly skips form resolution entirely - no `#jsForm`/first-`<form>` fallback, no `novalidate` attribute, no submit listener attached. Useful for consumers who only want the instance methods that don't need a form (`.ajax()`, `.isEmail()`, `.generatePassword()`, etc.) - notably React/SSR users, who previously had to pass a throwaway `document.createElement("form")` to construct an instance safely. Omitting the argument entirely still behaves exactly as before (auto-detects a form). Not a breaking change - `null` was not a previously meaningful value for this parameter.
+- **`NFSFU234FormValidation.ajax()` static method:** sends a request without needing an instance or a form at all - e.g. `NFSFU234FormValidation.ajax({ url, RequestMethod: "POST" })`. The existing instance method (`validator.ajax(...)`) is unchanged and now delegates to the static one internally, still caching the result on `.getAJAXResponse()` as before.
 - **TypeDoc setup:** JSDoc comments added across the main class's public methods, plus a `typedoc.json` config and `npm run docs:build` script generating both an HTML API reference and a JSON model (`docs-json/api.json`). The JSON now ships with the published npm package, so a docs site can fetch the exact, always-current function list via CDN instead of hand-maintaining an "Available Functions" page that can drift from the code.
 - **File/image validation:** new `validateFile()`/`validateAllFile()` (and `.validateFile()`/`.validateAllFile()` on the class) for `<input type="file">` fields - required/min/max file count, accepted MIME types or extensions (`accept`), max size (`maxSizeMB`), and image dimension limits (`maxWidth`/`maxHeight`/`minWidth`/`minHeight`), all config-driven since there's no HTML-attribute equivalent for most of these. This is the library's first async field validator (reading image dimensions requires decoding the file first) - `.validate()`/`.submit()` are now `async` to accommodate it.
 - **Real test suite:** Jest + jsdom + ts-jest, covering the config registry, `validateInput` (both attribute-driven and config-override paths), the new file validator, `ExceptionHandler`'s log levels (including a regression test for the `'big'`/`error_1` fallthrough issue), and the format-check utilities.
@@ -22,10 +23,18 @@ All notable changes to the NFSFU234FormValidation Library will be documented in 
 - `.nvmrc` pinning Node 22 for CI and local dev.
 - New `release-dry-run.yml` workflow (manual dispatch) that runs the full typecheck/test/build/docs pipeline plus `semantic-release --dry-run`, so the release plan can be sanity-checked before merging to `main`.
 - `npm-package` artifact upload from CI, so a build's exact publishable tarball is downloadable straight from the Actions run.
-
 - Example applications:
   - Browser (vanilla HTML)
   - Next.js App Router playground
+
+- **Flexible constructor API:** `new NFSFU234FormValidation()` now supports:
+
+  - automatic form detection (no arguments)
+  - utility-only instances (`null`)
+  - a form ID (`"myForm"`)
+  - a form element
+  - a configuration object containing `form`, `customErrorMessages`, and `ajaxOptions`.
+- Internal form resolution was refactored into shared helpers, reducing duplicated validation logic between `.validate()` and `.submit()`.
 
 ### Changed
 
@@ -38,6 +47,7 @@ All notable changes to the NFSFU234FormValidation Library will be documented in 
 - **License mismatch found on the docs website repo:** its README states GPL 3.0, while this library has always been MIT. Needs correcting on the website - a visitor evaluating this library for commercial use could be scared off by an incorrect copyleft license notice.
 - Rewrote `package.json`'s `description` (previously implied an unusual emphasis on textarea fields) and trimmed the `keywords` list from 97 entries down to 16 - the old list included misleading terms implying backend/Node.js/server-side support, which this library has never had.
 - Updated `homepage` to the current live domain.
+- `.validate()` and `.submit()` now share the same internal validation pipeline, ensuring consistent validation behaviour regardless of which API is used.
 
 ### Fixed
 

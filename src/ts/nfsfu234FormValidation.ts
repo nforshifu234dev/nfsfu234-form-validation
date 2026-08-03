@@ -1,5 +1,7 @@
 'use strict';
 
+import type AJAXOptionsInterface from "./interfaces/AJAXOptionsInterface";
+import type FormConstructorInterface from "./interfaces/FormConstructorInterface";
 import ajax from "./ajax/ajax";
 import ErrorHandler from "./errorHandling";
 import { ExceptionHandler, LogLevelInterface } from "./errorHandling/ExceptionHandler";
@@ -62,6 +64,8 @@ class NFSFU234FormValidation {
      */
     public form: HTMLFormElement | HTMLDivElement | undefined;
 
+    private defaultAJAXOptions?: AJAXOptionsInterface;
+
     /**
      * Custom error messages keyed by field name or validation rule, used to
      * override the library's default messages when validating this
@@ -70,54 +74,271 @@ class NFSFU234FormValidation {
     public customErrorMessages: { [key: string]: string } = {};
 
     /**
-     * @param formDetails - The form to attach to: a CSS id string, an
-     * element, or `{ form, customErrorMessages }`. Falls back to `#jsForm`,
-     * then the first `<form>` on the page, if omitted.
-     * @param AJAXOptions - Default AJAX request options used by `.submit()`.
+     * Creates a new validator instance.
+     *
+     * The constructor accepts either:
+     *
+     * - nothing (automatic form detection)
+     * - null (utility-only instance)
+     * - a form id
+     * - a form element
+     * - a configuration object
+     *
+     * Existing two-parameter initialization is still supported:
+     *
+     * new NFSFU234FormValidation(formDetails, ajaxOptions)
+     *
+     * or
+     *
+     * new NFSFU234FormValidation({
+     *     form,
+     *     customErrorMessages,
+     *     ajaxOptions
+     * })
      */
-    constructor(formDetails?: any, AJAXOptions?: any) {
+    constructor(
+        formDetails?: FormConstructorInterface,
+        ajaxOptions?: AJAXOptionsInterface
+    ) {
         console.log("NFSFU234FormValidation is loaded....");
 
-        if (typeof window === 'undefined') {
+        this.AJAXResult = null;
+
+        // Backwards compatibility
+        this.defaultAJAXOptions = ajaxOptions;
+
+        if (typeof window === "undefined") {
             this.form = undefined;
-        } else {
-            // Initial assignment of this.form
-            let formElement: HTMLFormElement | HTMLDivElement | undefined = undefined;
-
-            // Check if formDetails is provided and valid
-            if (formDetails && formDetails['form']) {
-                if (typeof formDetails['form'] === 'string' && formDetails['form'] !== '') {
-                    formElement = document.getElementById(formDetails['form']) as HTMLFormElement | HTMLDivElement | undefined;
-                } else if (formDetails['form'] instanceof HTMLElement) {
-                    formElement = formDetails['form'] as HTMLFormElement | HTMLDivElement;
-                }
-            }
-
-            // Fallback to default form selectors if formElement is not set
-            if (!formElement) {
-                formElement = document.getElementById('jsForm') as HTMLFormElement | HTMLDivElement | undefined;
-            }
-            if (!formElement) {
-                formElement = document.querySelector('form') as HTMLFormElement | HTMLDivElement | undefined;
-            }
-
-            // Assign formElement to this.form
-            this.form = formElement;
+            return;
         }
 
-        // If form is found and is an HTMLElement, add novalidate attribute and submit event listener
-        if (this.form && this.form instanceof HTMLElement) {
-            if (!this.form.hasAttribute('novalidate')) {
-                this.form.setAttribute('novalidate', '');
+        // Explicit utility-only instance
+        if (formDetails === null) {
+            this.form = undefined;
+            return;
+        }
+
+        let formElement:
+            | HTMLFormElement
+            | HTMLDivElement
+            | undefined;
+
+        // Configuration object
+        if (
+            formDetails &&
+            typeof formDetails === "object" &&
+            !(formDetails instanceof HTMLFormElement) &&
+            !(formDetails instanceof HTMLDivElement)
+        ) {
+            if (typeof formDetails.form === "string") {
+                formElement =
+                    document.getElementById(formDetails.form) as
+                        | HTMLFormElement
+                        | HTMLDivElement
+                        | undefined;
+            }
+            else if (
+                formDetails.form instanceof HTMLFormElement ||
+                formDetails.form instanceof HTMLDivElement
+            ) {
+                formElement = formDetails.form;
             }
 
-            this.form.addEventListener('submit', (e) => {
+            this.customErrorMessages =
+                formDetails.customErrorMessages ?? {};
+
+            // New API overrides old constructor parameter
+            if (formDetails.ajaxOptions) {
+                this.defaultAJAXOptions =
+                    formDetails.ajaxOptions;
+            }
+        }
+
+        // Form id
+        else if (typeof formDetails === "string") {
+            formElement =
+                document.getElementById(formDetails) as
+                    | HTMLFormElement
+                    | HTMLDivElement
+                    | undefined;
+        }
+
+        // Element
+        else if (
+            formDetails instanceof HTMLFormElement ||
+            formDetails instanceof HTMLDivElement
+        ) {
+            formElement = formDetails;
+        }
+
+        // Automatic detection
+        if (!formElement) {
+            formElement =
+                document.getElementById("jsForm") as
+                    | HTMLFormElement
+                    | HTMLDivElement
+                    | undefined;
+        }
+
+        if (!formElement) {
+            formElement =
+                document.querySelector("form") as
+                    | HTMLFormElement
+                    | HTMLDivElement
+                    | undefined;
+        }
+
+        this.form = formElement;
+
+        if (this.form) {
+            if (!this.form.hasAttribute("novalidate")) {
+                this.form.setAttribute("novalidate", "");
+            }
+
+            this.form.addEventListener("submit", (e) => {
                 e.preventDefault();
             });
         }
-
-        this.AJAXResult = null; // Store the result of an AJAX call.
     }
+
+/**
+ * Resolves the form element and validation options from the supplied
+ * user options (or falls back to the instance defaults).
+ *
+ * @throws Error if no form can be resolved.
+ */
+private resolveForm(
+    userOptions?: FormConstructorInterface
+): {
+    formElement: HTMLFormElement | HTMLDivElement;
+    options: {
+        form: HTMLFormElement | HTMLDivElement;
+        customErrorMessages: { [key: string]: string };
+    };
+} {
+
+    let formElement = this.form;
+    let customErrorMessages = this.customErrorMessages;
+
+    // Form ID
+    if (typeof userOptions === "string") {
+        formElement =
+            document.getElementById(userOptions) as
+                | HTMLFormElement
+                | HTMLDivElement
+                | undefined;
+
+        customErrorMessages = {};
+    }
+
+    // HTMLElement
+    else if (
+        userOptions instanceof HTMLFormElement ||
+        userOptions instanceof HTMLDivElement
+    ) {
+        formElement = userOptions;
+        customErrorMessages = {};
+    }
+
+    // Options object
+    else if (
+        userOptions &&
+        typeof userOptions === "object" &&
+        !(userOptions instanceof HTMLFormElement) &&
+        !(userOptions instanceof HTMLDivElement)
+    ) {
+
+        if (typeof userOptions.form === "string") {
+            formElement =
+                document.getElementById(userOptions.form) as
+                    | HTMLFormElement
+                    | HTMLDivElement
+                    | undefined;
+        }
+        else if (
+            userOptions.form instanceof HTMLFormElement ||
+            userOptions.form instanceof HTMLDivElement
+        ) {
+            formElement = userOptions.form;
+        }
+
+        customErrorMessages =
+            userOptions.customErrorMessages ??
+            this.customErrorMessages;
+    }
+
+    if (!formElement) {
+        throw new Error("Form element not found.");
+    }
+
+    if (!formElement.hasAttribute("novalidate")) {
+        formElement.setAttribute("novalidate", "");
+    }
+
+    return {
+        formElement,
+        options: {
+            form: formElement,
+            customErrorMessages
+        }
+    };
+}
+
+/**
+ * Runs validation against a resolved form and normalizes the result into
+ * a single ErrorMessageInterface.
+ */
+private async validateResolvedForm(
+    formElement: HTMLFormElement | HTMLDivElement,
+    options: {
+        form: HTMLFormElement | HTMLDivElement;
+        customErrorMessages: { [key: string]: string };
+    }
+): Promise<ErrorMessageInterface> {
+
+    const validationResult = await validateForm(
+        formElement,
+        options
+    );
+
+    // Validation passed
+    if (validationResult === true) {
+        return {
+            message: "success",
+            type: "success",
+            data: null
+        };
+    }
+
+    // Validation returned an ErrorMessageInterface
+    if (
+        typeof validationResult === "object" &&
+        validationResult !== null &&
+        "message" in validationResult
+    ) {
+
+        const message =
+            typeof validationResult.message === "string" ||
+            typeof validationResult.message === "number" ||
+            typeof validationResult.message === "boolean"
+                ? validationResult.message
+                : "Error";
+
+        return {
+            message,
+            type: "error",
+            code: validationResult.code,
+            data:
+                validationResult.data ?? validationResult
+        };
+    }
+
+    // Fallback
+    return {
+        message: "Error",
+        type: "error"
+    };
+}
 
     /**
      * Register form configs for the whole site in one place - typically a
@@ -197,246 +418,224 @@ class NFSFU234FormValidation {
     }
 
     /**
+     * Extracts the request body from a resolved form.
+     *
+     * Wraps {@link getFormDetails} and guarantees the caller either receives
+     * valid request data or an error result that can be returned directly.
+     *
+     * @param form - The resolved form element.
+     * @returns The request body, an ErrorMessageInterface, or false if extraction failed.
+     */
+    private getResolvedFormData(
+        form: HTMLFormElement | HTMLDivElement
+    ): Record<string, string | boolean> | ErrorMessageInterface | false {
+
+        const formData = getFormDetails(form);
+
+        if (formData === false) {
+            return false;
+        }
+
+        if (
+            typeof formData === "object" &&
+            formData !== null &&
+            "message" in formData
+        ) {
+            return formData;
+        }
+
+        return formData;
+    }
+
+    /**
      * Validates the whole form (every input, textarea, select, radio,
-     * checkbox, and file field), then - if validation passes and AJAX is
-     * configured - submits it and resolves once the request completes.
-     * Always async; always returns a `Promise`.
-     * @param userOptions - Overrides the form/customErrorMessages set at construction.
-     * @param callback - Optional callback invoked with the result instead of/alongside the returned Promise.
-     * @returns A `Promise` resolving to `{ message, type, data }` on validation-only outcomes, or the raw AJAX response on a successful AJAX submission.
+     * checkbox, and file field), then—if validation succeeds and AJAX is
+     * enabled—submits the form using either the supplied AJAX options or
+     * the instance's default AJAX configuration.
+     *
+     * The method first resolves the target form from the supplied
+     * `userOptions` (or falls back to the form attached to this instance),
+     * validates it, and finally submits it if appropriate.
+     *
+     * Validation-only usage is also supported. When AJAX is not enabled,
+     * the method simply resolves with the validation result.
+     *
+     * @param userOptions - Overrides the form and custom error messages
+     * configured on this instance.
+     * @param callback - Optional callback invoked with the validation result.
+     * @returns A Promise resolving to an ErrorMessageInterface when no AJAX
+     * submission occurs, or the AJAX response when submitted.
      */
     public async submit(
-        userOptions?: HTMLFormElement | HTMLDivElement | string | { form: string | HTMLFormElement | HTMLDivElement, customErrorMessages?: { [key: string]: string } },
-        callback?: any
+        userOptions?: FormConstructorInterface,
+        callback?: (result: ErrorMessageInterface) => void
     ): Promise<any> {
-        this.form = this.form || undefined;
-        this.customErrorMessages = this.customErrorMessages || {};
 
-        let formElement: HTMLFormElement | HTMLDivElement | undefined = this.form;
-        let options: any = this.customErrorMessages;
+        let resolved;
 
-        let isAjax = false;
-        let ajaxOptions: null | {
-            url: string,
-            RequestMethod: "GET" | "POST" | "PUT" | "PATCH" | "UPDATE" | "DELETE",
-            RequestHeader?: object,
-            RequestBody?: object | FormData | JSON | any
-        } = null;
-
-        // Handle userOptions to determine formElement and options
-        if (typeof userOptions === 'string') {
-            formElement = document.getElementById(userOptions) as HTMLFormElement | HTMLDivElement | undefined;
-            options = { form: formElement, customErrorMessages: [] };
-        } else if (userOptions instanceof HTMLFormElement || userOptions instanceof HTMLDivElement) {
-            formElement = userOptions;
-            options = { form: formElement, customErrorMessages: [] };
-        } else if (userOptions && typeof userOptions === 'object' && 'form' in userOptions) {
-            if (typeof userOptions.form === 'string') {
-                formElement = document.getElementById(userOptions.form) as HTMLFormElement | HTMLDivElement | undefined;
-            } else if (userOptions.form instanceof HTMLFormElement || userOptions.form instanceof HTMLDivElement) {
-                formElement = userOptions.form;
-            }
-            options = { form: formElement, customErrorMessages: userOptions.customErrorMessages ?? [] };
+        try {
+            resolved = this.resolveForm(userOptions);
         }
-
-        // Ensure formElement is available
-        if (!formElement) {
-            ExceptionHandler('Form element not found.');
+        catch (error: any) {
+            ExceptionHandler(error.message);
             return false;
         }
 
-        // Handle form's novalidate attribute
-        const doesNoValidateAttrExist = formElement.getAttribute('novalidate') !== null;
-        if (!doesNoValidateAttrExist) {
-            formElement.setAttribute('novalidate', '');
+        const {
+            formElement,
+            options
+        } = resolved;
+
+        const validationResult =
+            await this.validateResolvedForm(
+                formElement,
+                options
+            );
+
+        if (typeof callback === "function") {
+            callback(validationResult);
         }
 
-        // Prevent default form submission
-        formElement.addEventListener('submit', (e) => {
-            e.preventDefault();
-        });
-
-        // Process options for Ajax submission
-        const { isAjax: processedIsAjax, ajaxOptions: processedAjaxOptions } = this.populateOptionsVariables(userOptions, formElement);
-        isAjax = processedIsAjax;
-        ajaxOptions = processedAjaxOptions;
-
-        // Validate form and determine the error message
-        let errMsg: ErrorMessageInterface = { message: "", type: "" };
-        const errMsgFromFunction = await validateForm(formElement, options);
-
-        if (errMsgFromFunction === true) {
-            errMsg.message = "success";
-            errMsg.type = "success";
-            errMsg.data = null;
-        } else if (typeof errMsgFromFunction === 'object' && errMsgFromFunction !== null && 'message' in errMsgFromFunction) {
-            const errMessageFromValidate = errMsgFromFunction.message;
-            errMsg.message = (typeof errMessageFromValidate === 'string' || typeof errMessageFromValidate === 'number' || typeof errMessageFromValidate === 'boolean')
-                ? errMessageFromValidate
-                : "Error";
-            errMsg.type = "error";
-            errMsg.data = (errMsgFromFunction as any).data ?? errMsgFromFunction;
-        } else {
-            errMsg.message = "Error";
-            errMsg.type = "error";
+        if (validationResult.type !== "success") {
+            return validationResult;
         }
 
-        // Handle Ajax submission if applicable
-        if (errMsg.message === "success" && isAjax && ajaxOptions !== null) {
-            ajaxOptions.RequestBody = getFormDetails(formElement);
-            return ajax(ajaxOptions)
-                .then(response => {
-                    const responseCode = response.code || response.status;
-                    if (responseCode >= 300 && responseCode <= 500) {
-                        const errorDetails = {
-                            type: 'modal',
-                            message: response.message,
-                            duration: 3000,
-                            element: formElement,
-                            success: false,
-                        };
+        const populated =
+            this.populateOptionsVariables(
+                userOptions,
+                formElement
+            );
 
-                        errMsg.message = response.message;
-                        errMsg.type = "error";
-                        errMsg.code = responseCode;
-                        errMsg.data = response.data;
+        const ajaxOptions =
+            populated.ajaxOptions ??
+            this.defaultAJAXOptions ??
+            null;
 
-                        this.displayError(errorDetails);
-                        console.error("THIS IS ERR_ ", response.message);
-
-                        return errMsg;
-                    } else {
-                        console.log("Success");
-                        return response;
-                    }
-                })
-                .catch(error => {
-                    console.error("LOLK ", error);
-                    return errMsg;
-                });
+        if (!populated.isAjax || !ajaxOptions) {
+            return validationResult;
         }
 
-        // Handle callback if provided
-        if (typeof callback === 'function') {
-            callback(errMsg);
-            return true;
+        const formData =
+            this.getResolvedFormData(formElement);
+
+        if (
+            formData === false ||
+            (
+                typeof formData === "object" &&
+                formData !== null &&
+                "message" in formData
+            )
+        ) {
+            return formData;
         }
 
-        // Return a promise resolving to the error message
-        return new Promise((resolve) => {
-            resolve(errMsg);
-        });
+        ajaxOptions.RequestBody = formData;
+
+        const response = await ajax(ajaxOptions);
+
+        const responseCode =
+            response.code ??
+            response.status;
+
+        if (
+            responseCode >= 300 &&
+            responseCode <= 599
+        ) {
+
+            const errorResult: ErrorMessageInterface = {
+                message: response.message,
+                type: "error",
+                code: responseCode,
+                data: response.data
+            };
+
+            this.displayError({
+                type: "modal",
+                message: response.message,
+                duration: 3000,
+                element: formElement,
+                success: false
+            });
+
+            return errorResult;
+        }
+
+        return response;
     }
-
 
 
     /**
      * Validates the whole form (every input, textarea, select, radio,
-     * checkbox, and file field) without submitting it. Always async;
-     * always returns a `Promise`.
-     * @param userOptions - Overrides the form/customErrorMessages set at construction.
-     * @param callback - Optional callback invoked with the result instead of/alongside the returned Promise.
-     * @returns A `Promise` resolving to `{ message, type, data }` describing the validation outcome.
+     * checkbox, and file field) without submitting it.
+     *
+     * @param userOptions - Overrides the form/customErrorMessages configured
+     * on this instance.
+     * @param callback - Optional callback invoked with the validation result.
+     * @returns A Promise resolving to the validation result.
      */
     public async validate(
-        userOptions?: HTMLFormElement | HTMLDivElement | string | { form: HTMLFormElement | HTMLDivElement | string; customErrorMessages?: any[] },
-        callback?: any
-    ): Promise<any> {
-        let formElement: HTMLFormElement | HTMLDivElement | undefined;
-        let options: any = {}; // Initialize options as an empty object
+        userOptions?: FormConstructorInterface,
+        callback?: (result: ErrorMessageInterface) => void
+    ): Promise<ErrorMessageInterface | false> {
 
-        // Determine the form element and options based on userOptions
-        if (typeof userOptions === 'string') {
-            formElement = document.getElementById(userOptions) as HTMLFormElement | HTMLDivElement | undefined;
-            options = { form: formElement, customErrorMessages: [] };
-        } else if (userOptions instanceof HTMLFormElement || userOptions instanceof HTMLDivElement) {
-            formElement = userOptions;
-            options = { form: formElement, customErrorMessages: [] };
-        } else if (userOptions && typeof userOptions === 'object' && 'form' in userOptions) {
-            if (typeof userOptions.form === 'string') {
-                formElement = document.getElementById(userOptions.form) as HTMLFormElement | HTMLDivElement | undefined;
-            } else if (userOptions.form instanceof HTMLFormElement || userOptions.form instanceof HTMLDivElement) {
-                formElement = userOptions.form;
-            }
-            options = { form: formElement, customErrorMessages: userOptions.customErrorMessages ?? [] };
-        } else {
-            formElement = this.form;
-            options = { form: formElement, customErrorMessages: [] };
+        let resolved;
+
+        try {
+            resolved = this.resolveForm(userOptions);
         }
-
-        // Ensure form element exists
-        if (!formElement) {
-            ExceptionHandler('Form element not found.');
+        catch (error: any) {
+            ExceptionHandler(error.message);
             return false;
         }
 
-        // Handle form's novalidate attribute
-        const doesNoValidateAttrExist = formElement.getAttribute('novalidate') !== null;
-        if (!doesNoValidateAttrExist) {
-            formElement.setAttribute('novalidate', '');
+        const {
+            formElement,
+            options
+        } = resolved;
+
+        const validationResult =
+            await this.validateResolvedForm(
+                formElement,
+                options
+            );
+
+        if (typeof callback === "function") {
+            callback(validationResult);
         }
 
-        // Prevent default form submission
-        formElement.addEventListener('submit', (e) => {
-            e.preventDefault();
-        });
-
-        // Initialize errMsg with default values
-        let errMsg: ErrorMessageInterface = { message: "", type: "" };
-
-        // Validate the form using the provided function
-        const errMsgFromFunction = await validateForm(formElement, options);
-
-        if (errMsgFromFunction === true) {
-            errMsg.message = "success";
-            errMsg.type = "success";
-            errMsg.data = null;
-        } else if (typeof errMsgFromFunction === 'object' && errMsgFromFunction !== null && 'message' in errMsgFromFunction) {
-            const errMessageFromValidate = errMsgFromFunction.message;
-
-            // Ensure the message is of the correct type before assignment
-            if (typeof errMessageFromValidate === 'string' || typeof errMessageFromValidate === 'number' || typeof errMessageFromValidate === 'boolean') {
-                errMsg.message = errMessageFromValidate;
-            } else {
-                errMsg.message = "Error"; // Fallback to a default message if the type doesn't match
-            }
-
-            errMsg.type = "error";
-            errMsg.data = (errMsgFromFunction as any).data ?? errMsgFromFunction;
-        } else {
-            errMsg.message = "Error";
-            errMsg.type = "error";
-        }
-
-        // If a callback is provided, invoke it with errMsg
-        if (typeof callback === 'function') {
-            callback(errMsg);
-            return true;
-        }
-
-        // Return a promise resolving to the error message
-        return new Promise((resolve) => {
-            resolve(errMsg);
-        });
+        return validationResult;
     }
 
 
+    /**
+       Sends an AJAX request using the supplied request configuration.
+       Sends an AJAX request using the supplied request configuration. Static
+       - does not require a form or an instance. Use this when you only need
+       the AJAX helper and don't want to construct the class just to call it
+       (e.g. `NFSFU234FormValidation.ajax({...})` in a React component with
+       no form to attach to).
 
+       @param AJAXOptions - The request configuration, including the URL,
+       HTTP method, headers, and request body.
+       @returns A Promise that resolves with the server response.
+        */
+    public static ajax(AJAXOptions: AJAXOptionsInterface) {
+        return ajax(AJAXOptions);
+    }
 
     /**
-     * Sends an AJAX request using the supplied request configuration.
-     *
-     * The returned Promise is also stored internally so it can later be
-     * retrieved with {@link getAJAXResponse()}.
-     *
-     * @param AJAXOptions - The request configuration, including the URL,
-     * HTTP method, headers, and request body.
-     * @returns A Promise that resolves with the server response.
-     */
-    public ajax(AJAXOptions: any) {
+       Instance version of {@link NFSFU234FormValidation.ajax}. Sends an AJAX
+       request using the supplied request configuration.
 
-        // return this.AJAXResult = ajax(AJAXOptions);
-        return this.AJAXResult = ajax(AJAXOptions);
+        The returned Promise is also stored internally so it can later be
+        retrieved with {@link getAJAXResponse()}.
+
+        @param AJAXOptions - The request configuration, including the URL,
+        HTTP method, headers, and request body.
+        @returns A Promise that resolves with the server response.
+     */
+    public ajax(AJAXOptions: AJAXOptionsInterface) {
+        return this.AJAXResult = NFSFU234FormValidation.ajax(AJAXOptions);
     }
 
     /**
@@ -940,3 +1139,5 @@ export type { default as ErrorMessageInterface } from "./interfaces/ErrorMessage
 export type { default as FormConfigInterface } from "./interfaces/FormConfigInterface";
 export type { default as FieldRuleInterface } from "./interfaces/FieldRuleInterface";
 export type { PasswordStrengthResult } from "./password-handling/passwordStrength";
+export type { default as AJAXOptionsInterface } from "./interfaces/AJAXOptionsInterface";
+export type { default as FormConstructorInterface } from "./interfaces/FormConstructorInterface";

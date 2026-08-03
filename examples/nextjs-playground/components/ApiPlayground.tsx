@@ -15,12 +15,15 @@ import ApiMethodSelect from "@/components/playground/ApiMethodSelect";
 import ApiInput from "@/components/playground/ApiInput";
 import ApiExample from "@/components/playground/ApiExample";
 import ApiResult from "@/components/playground/ApiResult";
+import { createValidator } from "@/lib/validator";
 
 export default function ApiPlayground() {
-  const validator = useMemo(
-    () => new NFSFU234FormValidation(),
-    []
-  );
+  const [validator, setValidator] = useState<ReturnType<typeof createValidator> | null>(null);
+
+  useEffect(() => {
+    const form = document.createElement("form");
+    setValidator(createValidator(form));
+  }, []);
 
   const categories = useMemo(
     () => [...new Set(apiMethods.map((item) => item.category))],

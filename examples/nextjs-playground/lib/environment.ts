@@ -1,6 +1,9 @@
 // lib/environment.ts
 import pkg from "../package.json";
 
+const pkgDependencies = pkg.dependencies as Record<string, string> | undefined;
+const pkgDevDependencies = pkg.devDependencies as Record<string, string> | undefined;
+
 const clean = (version: string | undefined) =>
   version?.replace(/^[^\d]*/, "") ?? "Unknown";
 
@@ -8,8 +11,8 @@ export const environment = {
  library: {
     name: "@nfsfu234/form-validation",
     version:
-        pkg.dependencies["@nfsfu234/form-validation"] ??
-        pkg.devDependencies?.["@nfsfu234/form-validation"] ??
+        pkgDependencies?.["@nfsfu234/form-validation"] ??
+        pkgDevDependencies?.["@nfsfu234/form-validation"] ??
         "Local Build",
  },
 

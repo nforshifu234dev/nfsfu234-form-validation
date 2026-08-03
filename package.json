@@ -13,23 +13,25 @@
   "module": "dist/js/nfsfu234FormValidation.mjs",
   "unpkg": "dist/js/nfsfu234FormValidation.global.js",
   "jsdelivr": "dist/js/nfsfu234FormValidation.global.js",
-  "types": "dist/js/nfsfu234FormValidation.d.ts",
+  "types": "dist/types/nfsfu234FormValidation.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/js/nfsfu234FormValidation.d.ts",
+      "types": "./dist/types/nfsfu234FormValidation.d.ts",
       "import": {
-        "types": "./dist/js/nfsfu234FormValidation.d.mts",
+        "types": "./dist/types/nfsfu234FormValidation.d.mts",
         "default": "./dist/js/nfsfu234FormValidation.mjs"
       },
       "require": {
-        "types": "./dist/js/nfsfu234FormValidation.d.ts",
+        "types": "./dist/types/nfsfu234FormValidation.d.ts",
         "default": "./dist/js/nfsfu234FormValidation.cjs"
       }
     },
+
     "./css": {
       "types": "./dist/types/css.d.ts",
       "default": "./dist/css/nfsfu234FormValidation.min.css"
     },
+
     "./package.json": "./package.json"
   },
   "repository": {
@@ -83,15 +85,10 @@
     "prepublishOnly": "npm run typecheck && npm run test && npm run build && npm run docs:build"
   },
   "files": [
-    "dist/js/**/*.js",
-    "dist/js/**/*.cjs",
-    "dist/js/**/*.mjs",
-    "dist/css/**/*.css",
-    "dist/js/**/*.map",
-    "dist/css/**/*.map",
-    "dist/js/**/*.d.ts",
-    "dist/js/**/*.d.cts",
-    "docs-json/api.json"
+    "dist/",
+    "docs-json/api.json",
+    "README.md",
+    "LICENSE"
   ],
   "devDependencies": {
     "@commitlint/cli": "^21.2.1",

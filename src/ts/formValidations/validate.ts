@@ -12,8 +12,8 @@ const validateForm = async (
     form: HTMLFormElement | HTMLDivElement | null,
     options?: any,
     isErrorInline?: boolean
-): Promise<boolean | ErrorMessageInterface | { [key: string]: ErrorMessageInterface }> => {
-
+): Promise<boolean | ErrorMessageInterface> => {
+    
     let errMsg: ErrorMessageInterface = { message: "", data: null, code: 400 };
     let errMsgArray: { [key: string]: ErrorMessageInterface } = {};
 

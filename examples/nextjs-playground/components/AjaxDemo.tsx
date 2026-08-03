@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createValidator } from "@/lib/validator";
 
 type ResponseState = {
@@ -11,10 +11,12 @@ type ResponseState = {
 } | null;
 
 export default function AjaxDemo() {
-  const validator = useMemo(
-    () => createValidator(document.createElement("form")),
-    []
-  );
+  const validatorRef = useRef<ReturnType<typeof createValidator> | null>(null);
+
+  useEffect(() => {
+    const form = document.createElement("form");
+    validatorRef.current = createValidator(form);
+  }, []);
 
   const [url, setUrl] = useState(
     "https://jsonplaceholder.typicode.com/posts"
@@ -107,6 +109,11 @@ export default function AjaxDemo() {
   }
 
   async function sendRequest() {
+
+    const validator = validatorRef.current;
+
+    if (!validator) return;
+
     try {
       const parsedHeaders =
         headers.trim() === ""

@@ -9,7 +9,7 @@ import { areAllElementsTrue } from "../utilities";
  * @param {HTMLFormElement | HTMLDivElement | string} u_form - The HTML form element or its ID from which to extract data.
  * @returns {Object | boolean} - Returns an object containing form data if successful, or false if the form is not valid or no data is found.
  */
-const getFormDetails = (u_form: HTMLFormElement | HTMLDivElement | string): Record<string, string | boolean> | boolean | ErrorMessageInterface => {
+const getFormDetails = (u_form: HTMLFormElement | HTMLDivElement | string): Record<string, string | boolean> | ErrorMessageInterface | false => {
     let individualResponseMessage: ErrorMessageInterface = { message: "", type: 'error', code : 400 };
 
     // Check if running in a browser environment
