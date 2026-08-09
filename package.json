@@ -74,7 +74,7 @@
   },
   "scripts": {
     "clean": "npx rimraf dist",
-    "build:js": "tsup",
+    "build:js": "tsup && node move-types.mjs",
     "build:css": "node build-css.cjs",
     "build:umd": "node build-umd.js",
     "build": "npm run clean && npm run build:js && npm run build:css",
@@ -85,7 +85,12 @@
     "prepublishOnly": "npm run typecheck && npm run test && npm run build && npm run docs:build"
   },
   "files": [
-    "dist/",
+    "dist/css/nfsfu234FormValidation.css",
+    "dist/css/nfsfu234FormValidation.min.css",
+    "dist/js/nfsfu234FormValidation.cjs",
+    "dist/js/nfsfu234FormValidation.mjs",
+    "dist/js/nfsfu234FormValidation.global.js",
+    "dist/types/",
     "docs-json/api.json",
     "README.md",
     "LICENSE"
