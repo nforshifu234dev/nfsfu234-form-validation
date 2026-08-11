@@ -116,7 +116,7 @@ All notable changes to the NFSFU234FormValidation Library will be documented in 
 
 ### Removed
 
-- The `web` folder has been removed and transferred to its own repository. You can now find it in its dedicated repository [here](https://github.com/NFSFU234FormValidation/website/).
+- The `web` folder has been removed and transferred to its own repository. You can now find it in its dedicated repository [here](https://github.com/nforshifu234dev/website/).
 
 ## [2.4.3] - 2024-01-25
 

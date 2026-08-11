@@ -24,7 +24,7 @@ Built for **Vanilla JavaScript**, **React**, **Next.js**, **Vue**, **Svelte**, *
 •
 [📦 npm](https://www.npmjs.com/package/@nfsfu234/form-validation)
 •
-[💻 Website Source](https://github.com/NFSFU234FormValidation/website)
+[💻 Website Source](https://github.com/nforshifu234dev/website)
 •
 [🐛 Report Bug](https://github.com/nforshifu234dev/nfsfu234-form-validation/issues)
 •
@@ -69,14 +69,14 @@ pnpm add @nfsfu234/form-validation
    npm install @nfsfu234/form-validation
 ```
 
-2. **Update your imports** — only the package specifier changes; every export, method, and behavior is identical:
+1. **Update your imports** — only the package specifier changes; every export, method, and behavior is identical:
 
 ```diff
    - import NFSFU234FormValidation from "nfsfu234-form-validation";
    + import NFSFU234FormValidation from "@nfsfu234/form-validation";
 ```
 
-3. **Update the CSS import**, if you use it:
+1. **Update the CSS import**, if you use it:
 
 ```diff
    - import "nfsfu234-form-validation/css";
@@ -109,7 +109,7 @@ No API, behavior, or config changes are required beyond the name — this is pur
 NFSFU234FormValidation is framework agnostic and works anywhere JavaScript runs in the browser.
 
 | Framework | Supported |
-|-----------|:---------:|
+| ----------- | :---------: |
 | HTML | ✅ |
 | JavaScript | ✅ |
 | TypeScript | ✅ |
@@ -306,7 +306,7 @@ NFSFU234FormValidation works in every modern browser and integrates with virtual
 ### Supported Browsers
 
 | Browser | Supported |
-|----------|:---------:|
+| ---------- | :---------: |
 | Chrome | ✅ |
 | Edge | ✅ |
 | Firefox | ✅ |
@@ -316,7 +316,7 @@ NFSFU234FormValidation works in every modern browser and integrates with virtual
 ### Supported Frameworks
 
 | Framework | Supported |
-|-----------|:---------:|
+| ----------- | :---------: |
 | HTML | ✅ |
 | JavaScript | ✅ |
 | TypeScript | ✅ |
@@ -334,7 +334,6 @@ NFSFU234FormValidation works in every modern browser and integrates with virtual
 Because the library interacts directly with the browser's DOM, it should be initialized on the client when used in frameworks that support Server Components, such as Next.js.
 
 Complete integration guides are available in the documentation website.
-
 
 ## 📚 Documentation
 
@@ -383,11 +382,10 @@ Explore practical implementations including:
 
 📖 **Official Documentation**
 
-https://form-validation.nforshifu234dev.com
+[https://form-validation.nforshifu234dev.com](https://form-validation.nforshifu234dev.com)
 
 ---
 
-**Website Source**
+## Website Source
 
-https://github.com/NFSFU234FormValidation/website
-
+[https://github.com/nforshifu234dev/nfsfu234-form-validation-website](https://github.com/nforshifu234dev/nfsfu234-form-validation-website)
