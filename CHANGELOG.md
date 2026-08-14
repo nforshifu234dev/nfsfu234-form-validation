@@ -2,23 +2,30 @@
 
 All notable changes to the NFSFU234FormValidation Library will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and adheres to Semantic Versioning.
 
-## [3.0.0] - Unreleased
+## [3.0.0] — NFSFU234 Open Source Day (2026-08-25)
+
+The biggest release in this library's history — a redesigned developer
+experience, automated API documentation, real test coverage, and a cleaner
+architecture for long-term maintenance. Published as part of NFORSHIFU234
+Dev's first NFSFU234 Open Source Day, alongside `@nfsfu234/tour-guide` and
+the new `@nfsfu234/shotsweep`.
 
 ### ⚠️ Breaking
 
 - **Removed `.hashPassword()`, `.verifyPassword()`, and `.passwordMatch()`, and the `bcryptjs` runtime dependency entirely.** Client-side password hashing was never a real security feature - it doesn't protect a password in transit, and most real backends already have their own hashing story (bcrypt/argon2 in Node, or built into Django/Rails/Laravel). This library now validates and generates, it doesn't do cryptography. `generatePassword()`'s `shouldHash` option is also removed (it only existed to support the now-removed hashing). `checkPassword()` and `generatePassword()` are unaffected otherwise - both were already pure logic with no crypto dependency. This also makes the "dependency-free" description in `package.json`/README actually accurate - `dependencies` is now genuinely empty.
 - `.submit()` and `.validate()` are now always `async` and always return a `Promise` - including code paths that previously returned synchronously (e.g. `return false` when the form element isn't found). Any code checking the result directly (`if (form.submit() === false)`) needs to `await` it or use `.then()` instead. This was necessary to support the new async file/image validation (reading a file's size or decoding its dimensions can't happen synchronously).
+- `.validateInput()` is now `async` too, for the same reason and with the same consistency fix: previously it returned a bare `true` synchronously on success but a `Promise` on failure, making it unsafe to reliably `await`. It now always returns via the implicit `Promise` from `async`.
 
 ### Added
 
 - **Bare (form-less) instantiation:** `new NFSFU234FormValidation(null)` now explicitly skips form resolution entirely - no `#jsForm`/first-`<form>` fallback, no `novalidate` attribute, no submit listener attached. Useful for consumers who only want the instance methods that don't need a form (`.ajax()`, `.isEmail()`, `.generatePassword()`, etc.) - notably React/SSR users, who previously had to pass a throwaway `document.createElement("form")` to construct an instance safely. Omitting the argument entirely still behaves exactly as before (auto-detects a form). Not a breaking change - `null` was not a previously meaningful value for this parameter.
 - **`NFSFU234FormValidation.ajax()` static method:** sends a request without needing an instance or a form at all - e.g. `NFSFU234FormValidation.ajax({ url, RequestMethod: "POST" })`. The existing instance method (`validator.ajax(...)`) is unchanged and now delegates to the static one internally, still caching the result on `.getAJAXResponse()` as before.
 - **TypeDoc setup:** JSDoc comments added across the main class's public methods, plus a `typedoc.json` config and `npm run docs:build` script generating both an HTML API reference and a JSON model (`docs-json/api.json`). The JSON now ships with the published npm package, so a docs site can fetch the exact, always-current function list via CDN instead of hand-maintaining an "Available Functions" page that can drift from the code.
-- **File/image validation:** new `validateFile()`/`validateAllFile()` (and `.validateFile()`/`.validateAllFile()` on the class) for `<input type="file">` fields - required/min/max file count, accepted MIME types or extensions (`accept`), max size (`maxSizeMB`), and image dimension limits (`maxWidth`/`maxHeight`/`minWidth`/`minHeight`), all config-driven since there's no HTML-attribute equivalent for most of these. This is the library's first async field validator (reading image dimensions requires decoding the file first) - `.validate()`/`.submit()` are now `async` to accommodate it.
+- **File/image validation:** new `validateFile()`/`validateAllFile()` (and `.validateFile()`/`.validateAllFile()` on the class) for `<input type="file">` fields - required/min/max file count, accepted MIME types or extensions (`accept`), max size (`maxSizeMB`), and image dimension limits (`maxWidth`/`maxHeight`/`minWidth`/`minHeight`), all config-driven via `configureForms()` since there's no HTML-attribute equivalent for most of these. This is the library's first async field validator (reading image dimensions requires decoding the file first) - `.validate()`/`.submit()` are now `async` to accommodate it.
 - **Real test suite:** Jest + jsdom + ts-jest, covering the config registry, `validateInput` (both attribute-driven and config-override paths), the new file validator, `ExceptionHandler`'s log levels (including a regression test for the `'big'`/`error_1` fallthrough issue), and the format-check utilities.
 - **CI hardening:** the pipeline now runs type-checking and the full test suite on every push/PR to `main`, not just at release time. Publishing to npm and creating a GitHub release only happen on version tags, and only after both the test and build jobs pass - previously, a tag push went straight to `npm publish` with no gate beyond "did the build not crash."
 - **Site-wide form config registry:** `NFSFU234FormValidation.configureForms([...])` + `.autoInit()` - declare validation rules for every form across a multi-page site in one place; each page automatically wires up whichever registered forms are actually present.
-- **Declarative field rules:** a field's config rule (`required`, `type`, `minLength`, `maxLength`, `pattern`, `message`) can now override or extend its HTML attributes, across input, textarea, select, radio, and checkbox validation.
+- **Declarative field rules:** a field's config rule (`required`, `type`, `minLength`, `maxLength`, `pattern`, `message`) can now override or extend its HTML attributes, across input, textarea, select, radio, and checkbox validation. **Note:** these rules are read exclusively from `configureForms()` (or the field's own HTML attributes) - they cannot be passed ad hoc via a `validate*()` call's `options` parameter, which controls call context only (which form, custom messages, error display). See the "Fixed" section below for the JSDoc corrections this clarification came from.
 - Radio and checkbox validation are now included in `.validate()`/`.submit()` - previously they were silently skipped by the form-wide orchestrator and only worked if called individually.
 - `.nvmrc` pinning Node 22 for CI and local dev.
 - New `release-dry-run.yml` workflow (manual dispatch) that runs the full typecheck/test/build/docs pipeline plus `semantic-release --dry-run`, so the release plan can be sanity-checked before merging to `main`.
@@ -48,6 +55,8 @@ All notable changes to the NFSFU234FormValidation Library will be documented in 
 - Rewrote `package.json`'s `description` (previously implied an unusual emphasis on textarea fields) and trimmed the `keywords` list from 97 entries down to 16 - the old list included misleading terms implying backend/Node.js/server-side support, which this library has never had.
 - Updated `homepage` to the current live domain.
 - `.validate()` and `.submit()` now share the same internal validation pipeline, ensuring consistent validation behaviour regardless of which API is used.
+- `interfaces/FormValidationOptions.ts` widened to include `includeHTML`, `error_type`, and `ignoreError` - all confirmed (by tracing the actual validator implementations) to be read at runtime, but previously missing from the interface. `ajaxOptions` is now typed as the real `AJAXOptionsInterface` instead of `any`. The main class file's own duplicate options type was removed in favor of this single, corrected interface.
+- `populateOptionsVariables()`'s internal `ajaxOptions` type was a hand-duplicated copy of `AJAXOptionsInterface` that had drifted (missing `'PUT'` and `RequestBodyIgnore`) - now uses the real imported interface directly.
 
 ### Fixed
 
@@ -63,6 +72,17 @@ All notable changes to the NFSFU234FormValidation Library will be documented in 
 
   import "@nfsfu234/form-validation/css";
 
+- Removed the unconditional `console.log("NFSFU234FormValidation is loaded....")` in the constructor - no way for a consumer to silence it previously.
+- **`.validateRadio()`, `.validateCheckbox()`, and `.validateTextarea()` never actually defaulted to the instance's form.** All three internally read `options.form` directly and fail with "the form you are trying to validate does not exist" if it's missing - but none of the three wrappers merged `this.form` into `options` the way `.validateInput()`/`.validateSelect()` already did. Calling any of them the normal way (relying on the form the instance was constructed with) never worked. Fixed all three.
+- **`.validateAllRadio()` had the same bug at the loop level.** Its internal implementation forwards `options` to `validateRadio()` for each group without ever setting `options.form` itself (unlike `validateAllCheckbox`/`validateAllSelect`/`validateAllTextarea`, which all do this internally) - so every group failed regardless of what form was passed to the method. Fixed at the wrapper level.
+- **`.validateAllInput()`'s custom error messages were silently dropped.** The wrapper passed `customErrorMessages` directly as the internal function's second argument, but that function expects a full `options` object with a *nested* `customErrorMessages` property, which it then forwards as-is into `validateInput()` for every field. Passing the bare dict meant it was never actually read.
+- **`validateFile()`'s JSDoc falsely claimed `options` accepted rule fields** (`required`, `accept`, `maxSizeMB`, dimension limits, etc.). Traced all six field validators and confirmed this is deliberate, consistent architecture - every one of them reads rule fields exclusively from a `configureForms()` registration, never from the per-call `options` object. Corrected the JSDoc across `validateInput`/`validateSelect`/`validateTextarea`/`validateCheckbox`/`validateRadio`/`validateFile` to describe what `options` actually does (call context only), instead of changing the underlying architecture.
+- `.validateAllSelect()` and `.validateAllTextarea()` were the only two `validateAll*` methods missing the `form ?? this.form` fallback their siblings all have - calling either with no arguments silently passed `undefined` through instead of using the instance's form.
+- `.validateSelect()` and `.validateTextarea()` had `options` as a required parameter with no default, unlike every sibling method - both now default to `{}`.
+- Every `validateAll*` method now explicitly guards against `form` still being `undefined` after `form ?? this.form` (possible for utility-only instances, or when no form was ever found automatically), returning the same "form does not exist" result the internal validators already produce in that case - rather than relying on a loose `any` type to silently let it through un-narrowed.
+- `checkPassword()`'s internal parameter order (`password, includeSymbolsCheck, minLength, maxLength, userSymbolRegex`) differs from its public order (`password, minLength, maxLength, includeSymbolsCheck, userSymbolRegex`) - confirmed correct against the actual implementation, and now documented inline at the call site so a future refactor can't silently break the mapping.
+- Tightened every `options: any` parameter across `validateInput`/`validateSelect`/`validateTextarea`/`validateCheckbox`/`validateAllCheckbox`/`validateFile`/`validateAllFile`/`populateOptionsVariables` to the real `FormValidationOptions` interface instead of `any`.
+
 ### Removed
 
 - Removed `src/ts/index.ts`, a ~945-line dead duplicate of the main class with its own unrelated bugs - it was never used by the build and nothing imported it.
@@ -75,6 +95,8 @@ All notable changes to the NFSFU234FormValidation Library will be documented in 
 - Moved the standalone HTML demonstration from `tests/index.html` to `examples/browser/` to better distinguish manual browser examples from automated tests.
 - Moved generated TypeScript declaration files alongside the compiled JavaScript output and updated the package exports to match.
 - Added a complete Next.js App Router playground demonstrating validation, AJAX requests, password utilities, browser compatibility, package information, installation examples, API playground, and browser demo integration. The playground now consumes the published npm package instead of local source files, providing a realistic integration example.
+
+Part of the [NFSFU234](https://nforshifu234dev.com) open-source ecosystem, published for [NFSFU234 Open Source Day](https://nforshifu234dev.com).
 
 ## [3.0.0-beta] - 2024-08-25
 
