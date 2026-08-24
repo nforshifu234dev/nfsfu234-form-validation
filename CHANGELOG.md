@@ -88,7 +88,7 @@ Published as part of NFORSHIFU234 Dev's first **NFSFU234 Open Source Day**, alon
 
 Part of NFORSHIFU234 Dev's open-source ecosystem and released for **NFSFU234 Open Source Day** alongside [NFSFU234 Tour Guide](https://tour-guide.nforshifu234dev.com/) and the new [NFSFU234 ShotSweep](https://shotsweep.nforshifu234dev.com/).
 
-For documentation and examples, visit the [NFSFU234 Form Validation website](https://form-validation.nforshifu234dev.com/).
+For documentation and examples, visit the [NFSFU234 Form Validation website](https://formvalidation.nforshifu234dev.com/).
 
 ## [3.0.0-beta] - 2024-08-25
 

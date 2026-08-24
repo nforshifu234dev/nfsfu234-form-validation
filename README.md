@@ -20,7 +20,7 @@ Built for **Vanilla JavaScript**, **React**, **Next.js**, **Vue**, **Svelte**, *
 
 <br>
 
-[📚 Documentation](https://form-validation.nforshifu234dev.com)
+[📚 Documentation](https://formvalidation.nforshifu234dev.com)
 •
 [📦 npm](https://www.npmjs.com/package/@nfsfu234/form-validation)
 •
@@ -126,7 +126,7 @@ NFSFU234FormValidation is framework agnostic and works anywhere JavaScript runs 
 
 For framework-specific installation guides, examples, migration guides, and API documentation, visit the official documentation website:
 
-👉 [**form-validation.nforshifu234dev.com**](https://form-validation.nforshifu234dev.com)
+👉 [**formvalidation.nforshifu234dev.com**](https://formvalidation.nforshifu234dev.com)
 
 ## 🚀 Quick Start
 
@@ -382,7 +382,7 @@ Explore practical implementations including:
 
 📖 **Official Documentation**
 
-[https://form-validation.nforshifu234dev.com](https://form-validation.nforshifu234dev.com)
+[https://formvalidation.nforshifu234dev.com](https://formvalidation.nforshifu234dev.com)
 
 ---
 

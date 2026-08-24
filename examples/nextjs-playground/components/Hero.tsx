@@ -97,7 +97,7 @@ export default function Hero() {
           }}
         >
           <Link
-            href="https://form-validation.nforshifu234dev.com"
+            href="https://formvalidation.nforshifu234dev.com"
             target="_blank"
             className="btn btn-primary"
           >

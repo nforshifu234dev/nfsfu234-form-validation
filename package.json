@@ -1,7 +1,7 @@
 {
   "name": "@nfsfu234/form-validation",
   "author": "NFORSHIFU234 Dev",
-  "homepage": "https://form-validation.nforshifu234dev.com",
+  "homepage": "https://formvalidation.nforshifu234dev.com",
   "version": "3.0.0",
   "config": {
     "version_short": "3"
@@ -26,12 +26,10 @@
         "default": "./dist/js/nfsfu234FormValidation.cjs"
       }
     },
-
     "./css": {
       "types": "./dist/types/css.d.ts",
       "default": "./dist/css/nfsfu234FormValidation.min.css"
     },
-
     "./package.json": "./package.json"
   },
   "repository": {
