@@ -1,3 +1,5 @@
+## [3.0.1](https://github.com/nforshifu234dev/nfsfu234-form-validation/compare/v3.0.0...v3.0.1) (2026-08-25)
+
 # Changelog
 
 All notable changes to the NFSFU234FormValidation Library will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and adheres to Semantic Versioning.
