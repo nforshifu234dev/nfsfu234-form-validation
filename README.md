@@ -24,7 +24,7 @@ Built for **Vanilla JavaScript**, **React**, **Next.js**, **Vue**, **Svelte**, *
 •
 [📦 npm](https://www.npmjs.com/package/@nfsfu234/form-validation)
 •
-[💻 Website Source](https://github.com/nforshifu234dev/website)
+[💻 Website Source](https://github.com/nforshifu234dev/nfsfu234-form-validation-website)
 •
 [🐛 Report Bug](https://github.com/nforshifu234dev/nfsfu234-form-validation/issues)
 •
