@@ -2,79 +2,93 @@
 
 All notable changes to the NFSFU234FormValidation Library will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and adheres to Semantic Versioning.
 
-## [3.0.0] - Unreleased
+## [3.0.0] — NFSFU234 Open Source Day (2026-08-25)
+
+The biggest release in this library's history — a redesigned developer experience, automated API documentation, real test coverage, a cleaner architecture, and significantly expanded validation capabilities for long-term maintenance.
+
+Published as part of NFORSHIFU234 Dev's first **NFSFU234 Open Source Day**, alongside [NFSFU234 Tour Guide](https://tour-guide.nforshifu234dev.com/) and the new [NFSFU234 ShotSweep](https://shotsweep.nforshifu234dev.com/).
 
 ### ⚠️ Breaking
 
-- **Removed `.hashPassword()`, `.verifyPassword()`, and `.passwordMatch()`, and the `bcryptjs` runtime dependency entirely.** Client-side password hashing was never a real security feature - it doesn't protect a password in transit, and most real backends already have their own hashing story (bcrypt/argon2 in Node, or built into Django/Rails/Laravel). This library now validates and generates, it doesn't do cryptography. `generatePassword()`'s `shouldHash` option is also removed (it only existed to support the now-removed hashing). `checkPassword()` and `generatePassword()` are unaffected otherwise - both were already pure logic with no crypto dependency. This also makes the "dependency-free" description in `package.json`/README actually accurate - `dependencies` is now genuinely empty.
-- `.submit()` and `.validate()` are now always `async` and always return a `Promise` - including code paths that previously returned synchronously (e.g. `return false` when the form element isn't found). Any code checking the result directly (`if (form.submit() === false)`) needs to `await` it or use `.then()` instead. This was necessary to support the new async file/image validation (reading a file's size or decoding its dimensions can't happen synchronously).
+* **Removed `.hashPassword()`, `.verifyPassword()`, and `.passwordMatch()`, and the `bcryptjs` runtime dependency entirely.** Client-side password hashing was never a real security feature — it doesn't protect a password in transit, and most real backends already have their own hashing story. This library now validates and generates; it does not perform cryptography. `generatePassword()`'s `shouldHash` option is also removed. `checkPassword()` and `generatePassword()` are otherwise unaffected.
+* `.submit()` and `.validate()` are now always `async` and always return a `Promise`, including code paths that previously returned synchronously. Consumers checking results directly must now `await` the result or use `.then()`.
+* `.validateInput()` is now `async` too and consistently returns a `Promise`.
 
 ### Added
 
-- **Bare (form-less) instantiation:** `new NFSFU234FormValidation(null)` now explicitly skips form resolution entirely - no `#jsForm`/first-`<form>` fallback, no `novalidate` attribute, no submit listener attached. Useful for consumers who only want the instance methods that don't need a form (`.ajax()`, `.isEmail()`, `.generatePassword()`, etc.) - notably React/SSR users, who previously had to pass a throwaway `document.createElement("form")` to construct an instance safely. Omitting the argument entirely still behaves exactly as before (auto-detects a form). Not a breaking change - `null` was not a previously meaningful value for this parameter.
-- **`NFSFU234FormValidation.ajax()` static method:** sends a request without needing an instance or a form at all - e.g. `NFSFU234FormValidation.ajax({ url, RequestMethod: "POST" })`. The existing instance method (`validator.ajax(...)`) is unchanged and now delegates to the static one internally, still caching the result on `.getAJAXResponse()` as before.
-- **TypeDoc setup:** JSDoc comments added across the main class's public methods, plus a `typedoc.json` config and `npm run docs:build` script generating both an HTML API reference and a JSON model (`docs-json/api.json`). The JSON now ships with the published npm package, so a docs site can fetch the exact, always-current function list via CDN instead of hand-maintaining an "Available Functions" page that can drift from the code.
-- **File/image validation:** new `validateFile()`/`validateAllFile()` (and `.validateFile()`/`.validateAllFile()` on the class) for `<input type="file">` fields - required/min/max file count, accepted MIME types or extensions (`accept`), max size (`maxSizeMB`), and image dimension limits (`maxWidth`/`maxHeight`/`minWidth`/`minHeight`), all config-driven since there's no HTML-attribute equivalent for most of these. This is the library's first async field validator (reading image dimensions requires decoding the file first) - `.validate()`/`.submit()` are now `async` to accommodate it.
-- **Real test suite:** Jest + jsdom + ts-jest, covering the config registry, `validateInput` (both attribute-driven and config-override paths), the new file validator, `ExceptionHandler`'s log levels (including a regression test for the `'big'`/`error_1` fallthrough issue), and the format-check utilities.
-- **CI hardening:** the pipeline now runs type-checking and the full test suite on every push/PR to `main`, not just at release time. Publishing to npm and creating a GitHub release only happen on version tags, and only after both the test and build jobs pass - previously, a tag push went straight to `npm publish` with no gate beyond "did the build not crash."
-- **Site-wide form config registry:** `NFSFU234FormValidation.configureForms([...])` + `.autoInit()` - declare validation rules for every form across a multi-page site in one place; each page automatically wires up whichever registered forms are actually present.
-- **Declarative field rules:** a field's config rule (`required`, `type`, `minLength`, `maxLength`, `pattern`, `message`) can now override or extend its HTML attributes, across input, textarea, select, radio, and checkbox validation.
-- Radio and checkbox validation are now included in `.validate()`/`.submit()` - previously they were silently skipped by the form-wide orchestrator and only worked if called individually.
-- `.nvmrc` pinning Node 22 for CI and local dev.
-- New `release-dry-run.yml` workflow (manual dispatch) that runs the full typecheck/test/build/docs pipeline plus `semantic-release --dry-run`, so the release plan can be sanity-checked before merging to `main`.
-- `npm-package` artifact upload from CI, so a build's exact publishable tarball is downloadable straight from the Actions run.
-- Example applications:
-  - Browser (vanilla HTML)
-  - Next.js App Router playground
-
-- **Flexible constructor API:** `new NFSFU234FormValidation()` now supports:
-
-  - automatic form detection (no arguments)
-  - utility-only instances (`null`)
-  - a form ID (`"myForm"`)
-  - a form element
-  - a configuration object containing `form`, `customErrorMessages`, and `ajaxOptions`.
-- Internal form resolution was refactored into shared helpers, reducing duplicated validation logic between `.validate()` and `.submit()`.
+* **Bare form-less instantiation:** `new NFSFU234FormValidation(null)` explicitly skips form resolution, `novalidate`, and submit-listener setup while still allowing utility methods to be used safely.
+* **Static AJAX API:** added `NFSFU234FormValidation.ajax()` for making requests without an instance or form. The existing instance method delegates to the static implementation.
+* **TypeDoc API documentation:** added JSDoc coverage across the main public API, `typedoc.json`, and `npm run docs:build`, generating both HTML API documentation and a JSON API model.
+* **File/image validation:** added `validateFile()` and `validateAllFile()` support for required/min/max file counts, MIME types/extensions, maximum file size, and image dimension limits.
+* **Real test suite:** added Jest, jsdom, and ts-jest coverage for configuration, validation behavior, file validation, exception handling, and format utilities.
+* **CI hardening:** type-checking and the complete test suite now run on pushes and pull requests to `main`. npm publishing and GitHub releases are gated behind successful validation and build jobs.
+* **Site-wide configuration registry:** added `configureForms()` and `autoInit()` for declaring validation rules across multiple forms.
+* **Declarative field rules:** configuration can now define field-level `required`, `type`, `minLength`, `maxLength`, `pattern`, and `message` rules.
+* Radio and checkbox validation are now included in `.validate()` and `.submit()`.
+* Added `.nvmrc` pinning Node 22 for development and CI.
+* Added `release-dry-run.yml` for validating the release process before publishing.
+* Added npm-package artifact uploads from CI.
+* Added browser and Next.js App Router example applications.
+* Added a flexible constructor API supporting automatic form detection, utility-only instances, form IDs, form elements, and configuration objects.
+* Refactored form resolution into shared helpers.
 
 ### Changed
 
-- **Scoped the package to `@nfsfu234/form-validation`**, under the `nfsfu234` npm organization created ahead of launch day.
-- Release pipeline switched from tag-triggered (`push a v*.*.* tag → publish`) to trunk-based: `semantic-release` now runs on every push to `main`, determines the next version from Conventional Commits, and handles versioning, the changelog, the npm publish, and the GitHub release in one pass. The old three-job `verify` → `publish` → `release` pipeline is gone.
-- `.releaserc.cjs`: added `next`/`alpha` prerelease channels and maintenance-range branches, explicit `commit-analyzer` release rules (`feat` → minor; `fix`/`perf`/`refactor` → patch; `docs`/`style`/`test`/`build`/`ci`/`chore` → no release), and wired the npm tarball into the GitHub release assets.
-- CI (`ci.yml`, `release.yml`, `release-dry-run.yml`) now runs against the Node version pinned in the new `.nvmrc` instead of a hardcoded version.
-- Bumped `actions/setup-node` from v3 to v4, and replaced the archived `actions/create-release@v1` with `softprops/action-gh-release@v2` in CI.
-- `tsup` (the build tool) is now marked unmaintained upstream, with `tsdown` recommended as its successor - not an urgent migration, but worth planning for.
-- **License mismatch found on the docs website repo:** its README states GPL 3.0, while this library has always been MIT. Needs correcting on the website - a visitor evaluating this library for commercial use could be scared off by an incorrect copyleft license notice.
-- Rewrote `package.json`'s `description` (previously implied an unusual emphasis on textarea fields) and trimmed the `keywords` list from 97 entries down to 16 - the old list included misleading terms implying backend/Node.js/server-side support, which this library has never had.
-- Updated `homepage` to the current live domain.
-- `.validate()` and `.submit()` now share the same internal validation pipeline, ensuring consistent validation behaviour regardless of which API is used.
+* **Scoped the package to `@nfsfu234/form-validation`** under the `nfsfu234` npm organization.
+* Switched release automation from tag-triggered publishing to trunk-based semantic releases on pushes to `main`.
+* Added `next` and `alpha` prerelease channels and maintenance-range branches.
+* Updated Conventional Commit release rules.
+* Updated CI workflows to use the Node version pinned in `.nvmrc`.
+* Updated `actions/setup-node` from v3 to v4.
+* Replaced the archived `actions/create-release@v1` with `softprops/action-gh-release@v2`.
+* Documented `tsdown` as the recommended successor to `tsup`, while leaving migration as future maintenance work.
+* Corrected the documentation website's license information to match the library's MIT license.
+* Rewrote the package description and reduced the keyword list to remove misleading backend/server-side terminology.
+* Updated the package homepage to the current live domain.
+* Unified `.validate()` and `.submit()` around the same validation pipeline.
+* Corrected `FormValidationOptions` to accurately represent runtime-supported options and replaced duplicated `any` types with the real interfaces.
 
 ### Fixed
 
-- Fixed a form-type detection bug in `submit()` where `instanceof HTMLFormElement || HTMLDivElement` was always `true` regardless of the actual element type.
-- Fixed an SSR-safety bug across six validators where an invalid log level (`'big'`) caused a "not in a browser environment" check to throw instead of gracefully returning `false` - this could crash a Next.js/SSR render if any of those functions were reached server-side.
-- Fixed the `error_1` log level in `ExceptionHandler` relying on accidental fallthrough behavior to throw; it's now an explicit case.
-- Fixed the npm publish pipeline: `tsup` was outputting default file extensions, but `package.json`'s `main` field pointed at a `.cjs` file that was never produced, and the `module` field pointed at a file that actually contained CommonJS output instead of ESM. Added an `exports` map and corrected `main`/`module`/`files` so the package resolves correctly for Node, bundlers, and CDN use.
-- Removed `postcss`, `autoprefixer`, `cssnano`, `postcss-cli`, `buffer`, `crypto-browserify`, `stream-browserify`, and `vm-browserify` from runtime `dependencies` - none are used at runtime by consumers; they were build-tooling-only or entirely unused.
-- Fixed a copy-paste bug in `togglePasswordVisibility` where the `hideIcon` branch referenced `showIcon`.
-- Unsafe type casts in radio/checkbox message handling (`.message as string` on values that could be plain strings) replaced with safe type narrowing.
-- Fixed `displayErrorInline()` inserting the inline error message via `parentNode.appendChild()`, which always placed it as the *last* child of the parent regardless of where the input field itself sat — on parents with multiple fields, an error message could render next to the wrong field. It's now inserted immediately after the input via `insertAdjacentElement("afterend", ...)`, so it always lands right below the field it belongs to.
-- CSS can now be imported directly from the package using:
-
-  import "@nfsfu234/form-validation/css";
+* Fixed form-type detection in `submit()`.
+* Fixed SSR-safety issues involving invalid log levels.
+* Fixed `ExceptionHandler`'s `error_1` fallthrough behavior.
+* Fixed npm package entry points and exports so Node, bundlers, and CDN consumers resolve the package correctly.
+* Removed unused runtime dependencies including browserify-related packages and build-only CSS tooling.
+* Fixed the `togglePasswordVisibility` `hideIcon` copy-paste bug.
+* Replaced unsafe radio/checkbox message casts with type-safe narrowing.
+* Fixed inline validation messages being appended to the wrong location in multi-field parents.
+* Added direct CSS package imports.
+* Removed unconditional constructor logging.
+* Fixed radio, checkbox, and textarea validators failing to fall back to the instance form.
+* Fixed `.validateAllRadio()` form propagation.
+* Fixed `.validateAllInput()` dropping custom error messages.
+* Corrected JSDoc describing validation options versus configured validation rules.
+* Fixed `.validateAllSelect()` and `.validateAllTextarea()` missing the `form ?? this.form` fallback.
+* Added missing default option objects to `.validateSelect()` and `.validateTextarea()`.
+* Added explicit form guards to all `validateAll*` methods.
+* Documented the internal/public parameter ordering of `checkPassword()`.
+* Tightened `options: any` parameters across the validation API to use `FormValidationOptions`.
 
 ### Removed
 
-- Removed `src/ts/index.ts`, a ~945-line dead duplicate of the main class with its own unrelated bugs - it was never used by the build and nothing imported it.
-- Removed `src/ts/formSubmission/submitHandler.ts`, an entire unused parallel form-submission implementation that had been superseded but never deleted.
-- Removed an empty, unreferenced `password-handling/passwordHandler.ts`.
-- Removed ~300 lines of commented-out legacy code left behind in `nfsfu234FormValidation.ts` and `formValidations/validate.ts`.
+* Removed the unused `src/ts/index.ts` duplicate implementation.
+* Removed the unused parallel form-submission implementation in `src/ts/formSubmission/submitHandler.ts`.
+* Removed the empty, unreferenced password handler.
+* Removed approximately 300 lines of commented-out legacy code.
 
 ### Housekeeping
 
-- Moved the standalone HTML demonstration from `tests/index.html` to `examples/browser/` to better distinguish manual browser examples from automated tests.
-- Moved generated TypeScript declaration files alongside the compiled JavaScript output and updated the package exports to match.
-- Added a complete Next.js App Router playground demonstrating validation, AJAX requests, password utilities, browser compatibility, package information, installation examples, API playground, and browser demo integration. The playground now consumes the published npm package instead of local source files, providing a realistic integration example.
+* Moved the standalone browser demonstration from `tests/index.html` to `examples/browser/`.
+* Moved generated TypeScript declarations alongside compiled JavaScript output.
+* Added a complete Next.js App Router playground demonstrating validation, AJAX requests, password utilities, browser compatibility, package information, installation examples, API playground, and browser integration.
+* Updated the playground to consume the published npm package instead of local source files.
+
+### Release
+
+Part of NFORSHIFU234 Dev's open-source ecosystem and released for **NFSFU234 Open Source Day** alongside [NFSFU234 Tour Guide](https://tour-guide.nforshifu234dev.com/) and the new [NFSFU234 ShotSweep](https://shotsweep.nforshifu234dev.com/).
+
+For documentation and examples, visit the [NFSFU234 Form Validation website](https://formvalidation.nforshifu234dev.com/).
 
 ## [3.0.0-beta] - 2024-08-25
 
@@ -116,7 +130,7 @@ All notable changes to the NFSFU234FormValidation Library will be documented in 
 
 ### Removed
 
-- The `web` folder has been removed and transferred to its own repository. You can now find it in its dedicated repository [here](https://github.com/NFSFU234FormValidation/website/).
+- The `web` folder has been removed and transferred to its own repository. You can now find it in its dedicated repository [here](https://github.com/nforshifu234dev/website/).
 
 ## [2.4.3] - 2024-01-25
 

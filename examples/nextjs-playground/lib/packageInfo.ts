@@ -14,7 +14,7 @@ export const packageInfo = {
   framework: "Framework Agnostic",
 
   documentation:
-    "https://form-validation.nforshifu234dev.com",
+    "https://formvalidation.nforshifu234dev.com",
 
   npm:
     "https://www.npmjs.com/package/@nfsfu234/form-validation",

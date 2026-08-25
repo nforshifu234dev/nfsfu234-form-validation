@@ -1,18 +1,19 @@
 import { ExceptionHandler } from "../errorHandling/ExceptionHandler";
 import ErrorMessageInterface from "../interfaces/ErrorMessagesInterface";
+import { FormValidationOptions } from "../interfaces/FormValidationOptions";
 import { areAllElementsTrue } from "../utilities";
 import validateInput from "./validateInput";
 
 /**
  * Validate all input fields within a form.
  * @param {HTMLFormElement | HTMLDivElement} form - The form element to validate.
- * @param {Object} customErrorMessages - Custom error messages for form validation.
+ * @param {Object} options - Call-context options (form override, custom error messages, error display), forwarded as-is into validateInput() for every field.
  * @returns {boolean} Returns true if all input fields are valid, otherwise false.
  */
-const validateAllInput = (form: HTMLFormElement | HTMLDivElement | string, options = {
-    customErrorMessages: [],
-    form
-}):  ErrorMessageInterface[] | boolean => {
+const validateAllInput = (
+    form: HTMLFormElement | HTMLDivElement | string,
+    options: FormValidationOptions = { customErrorMessages: {}, form }
+): ErrorMessageInterface[] | boolean => {
 
     const failureReturnMessage:ErrorMessageInterface[] = [];
     let individualResponseMessage: ErrorMessageInterface = { message: "", code : 400 };

@@ -10,21 +10,21 @@ Built for **Vanilla JavaScript**, **React**, **Next.js**, **Vue**, **Svelte**, *
 
 <br>
 
-[![npm version](https://img.shields.io/npm/v/nfsfu234-form-validation.svg)](https://www.npmjs.com/package/@nfsfu234/form-validation)
-[![npm downloads](https://img.shields.io/npm/dm/nfsfu234-form-validation.svg)](https://www.npmjs.com/package/@nfsfu234/form-validation)
-[![License: MIT](https://img.shields.io/npm/l/nfsfu234-form-validation)](LICENSE)
-[![GitHub Release](https://img.shields.io/github/v/release/NFSFU234FormValidation/nfsfu234-form-validation)](https://github.com/nforshifu234dev/nfsfu234-form-validation/releases)
-[![GitHub Stars](https://img.shields.io/github/stars/NFSFU234FormValidation/nfsfu234-form-validation?style=social)](https://github.com/nforshifu234dev/nfsfu234-form-validation)
-[![GitHub Issues](https://img.shields.io/github/issues/NFSFU234FormValidation/nfsfu234-form-validation)](https://github.com/nforshifu234dev/nfsfu234-form-validation/issues)
+[![npm version](https://img.shields.io/npm/v/%40nfsfu234%2Fform-validation.svg)](https://www.npmjs.com/package/@nfsfu234/form-validation)
+[![npm downloads](https://img.shields.io/npm/dm/%40nfsfu234%2Fform-validation.svg)](https://www.npmjs.com/package/@nfsfu234/form-validation)
+[![License: MIT](https://img.shields.io/npm/l/%40nfsfu234%2Fform-validation.svg)](LICENSE)
+[![GitHub Release](https://github.com/nforshifu234dev/nfsfu234-form-validation)](https://github.com/nforshifu234dev/nfsfu234-form-validation/releases)
+[![GitHub Stars](https://img.shields.io/github/stars/nforshifu234dev/nfsfu234-form-validation?style=social)](https://github.com/nforshifu234dev/nfsfu234-form-validation)
+[![GitHub Issues](https://img.shields.io/github/issues/nforshifu234dev/nfsfu234-form-validation)](https://github.com/nforshifu234dev/nfsfu234-form-validation/issues)
 [![CI](https://github.com/nforshifu234dev/nfsfu234-form-validation/actions/workflows/ci.yml/badge.svg)](https://github.com/nforshifu234dev/nfsfu234-form-validation/actions/workflows/ci.yml)
 
 <br>
 
-[📚 Documentation](https://form-validation.nforshifu234dev.com)
+[📚 Documentation](https://formvalidation.nforshifu234dev.com)
 •
 [📦 npm](https://www.npmjs.com/package/@nfsfu234/form-validation)
 •
-[💻 Website Source](https://github.com/NFSFU234FormValidation/website)
+[💻 Website Source](https://github.com/nforshifu234dev/website)
 •
 [🐛 Report Bug](https://github.com/nforshifu234dev/nfsfu234-form-validation/issues)
 •
@@ -69,14 +69,14 @@ pnpm add @nfsfu234/form-validation
    npm install @nfsfu234/form-validation
 ```
 
-2. **Update your imports** — only the package specifier changes; every export, method, and behavior is identical:
+1. **Update your imports** — only the package specifier changes; every export, method, and behavior is identical:
 
 ```diff
    - import NFSFU234FormValidation from "nfsfu234-form-validation";
    + import NFSFU234FormValidation from "@nfsfu234/form-validation";
 ```
 
-3. **Update the CSS import**, if you use it:
+1. **Update the CSS import**, if you use it:
 
 ```diff
    - import "nfsfu234-form-validation/css";
@@ -109,7 +109,7 @@ No API, behavior, or config changes are required beyond the name — this is pur
 NFSFU234FormValidation is framework agnostic and works anywhere JavaScript runs in the browser.
 
 | Framework | Supported |
-|-----------|:---------:|
+| ----------- | :---------: |
 | HTML | ✅ |
 | JavaScript | ✅ |
 | TypeScript | ✅ |
@@ -126,7 +126,7 @@ NFSFU234FormValidation is framework agnostic and works anywhere JavaScript runs 
 
 For framework-specific installation guides, examples, migration guides, and API documentation, visit the official documentation website:
 
-👉 [**form-validation.nforshifu234dev.com**](https://form-validation.nforshifu234dev.com)
+👉 [**formvalidation.nforshifu234dev.com**](https://formvalidation.nforshifu234dev.com)
 
 ## 🚀 Quick Start
 
@@ -306,7 +306,7 @@ NFSFU234FormValidation works in every modern browser and integrates with virtual
 ### Supported Browsers
 
 | Browser | Supported |
-|----------|:---------:|
+| ---------- | :---------: |
 | Chrome | ✅ |
 | Edge | ✅ |
 | Firefox | ✅ |
@@ -316,7 +316,7 @@ NFSFU234FormValidation works in every modern browser and integrates with virtual
 ### Supported Frameworks
 
 | Framework | Supported |
-|-----------|:---------:|
+| ----------- | :---------: |
 | HTML | ✅ |
 | JavaScript | ✅ |
 | TypeScript | ✅ |
@@ -334,7 +334,6 @@ NFSFU234FormValidation works in every modern browser and integrates with virtual
 Because the library interacts directly with the browser's DOM, it should be initialized on the client when used in frameworks that support Server Components, such as Next.js.
 
 Complete integration guides are available in the documentation website.
-
 
 ## 📚 Documentation
 
@@ -383,11 +382,10 @@ Explore practical implementations including:
 
 📖 **Official Documentation**
 
-https://form-validation.nforshifu234dev.com
+[https://formvalidation.nforshifu234dev.com](https://formvalidation.nforshifu234dev.com)
 
 ---
 
-**Website Source**
+## Website Source
 
-https://github.com/NFSFU234FormValidation/website
-
+[https://github.com/nforshifu234dev/nfsfu234-form-validation-website](https://github.com/nforshifu234dev/nfsfu234-form-validation-website)

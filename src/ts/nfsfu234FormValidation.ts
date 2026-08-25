@@ -2,9 +2,10 @@
 
 import type AJAXOptionsInterface from "./interfaces/AJAXOptionsInterface";
 import type FormConstructorInterface from "./interfaces/FormConstructorInterface";
+import { FormValidationOptions } from "./interfaces/FormValidationOptions";
 import ajax from "./ajax/ajax";
 import ErrorHandler from "./errorHandling";
-import { ExceptionHandler, LogLevelInterface } from "./errorHandling/ExceptionHandler";
+import { ExceptionHandler } from "./errorHandling/ExceptionHandler";
 import displayError from "./errorHandling/displayError";
 import getFormDetails from "./formValidations/getFormDetails";
 import restrictInputLengthWithCounter from "./formValidations/restrictInputLengthWithCounter";
@@ -42,8 +43,13 @@ import { configureForms, autoInitForms } from "./config/formRegistry";
 import FormConfigInterface from "./interfaces/FormConfigInterface";
 
 
-// src/interfaces/FormValidationOptions.ts
-
+/**
+ * Custom error messages keyed by field type (`'radio'`, `'checkbox'`,
+ * `'file'`, etc.) or field name, depending on the validator. Used where a
+ * method accepts just the messages directly rather than a full
+ * {@link FormValidationOptions} object (e.g. {@link NFSFU234FormValidation.validateAllInput}).
+ */
+export type CustomErrorMessages = { [key: string]: string };
 
 /**
  * A lightweight, dependency-free client-side form validation library.
@@ -100,8 +106,6 @@ class NFSFU234FormValidation {
         formDetails?: FormConstructorInterface,
         ajaxOptions?: AJAXOptionsInterface
     ) {
-        console.log("NFSFU234FormValidation is loaded....");
-
         this.AJAXResult = null;
 
         // Backwards compatibility
@@ -373,17 +377,28 @@ private async validateResolvedForm(
      * @param options - Either an explicit `{ isAjax, ajaxOptions }`-shaped object, or omitted to fall back to reading the form's attributes.
      * @param formElement - The form to read AJAX-related attributes from when `options` doesn't already specify them.
      */
-    private populateOptionsVariables(options: any, formElement: HTMLFormElement | HTMLDivElement | undefined) {
+    private populateOptionsVariables(options: FormConstructorInterface | undefined, formElement: HTMLFormElement | HTMLDivElement | undefined) {
         let isAjax = false;
-        let ajaxOptions: null | {
-            url: string,
-            RequestMethod: "GET" | "POST" | "PATCH" | "UPDATE" | "DELETE",
-            RequestHeader?: { [key: string]: string },
-            RequestBody?: object | FormData | JSON
-        } = null;
+        // Previously a hand-duplicated inline type that had drifted from the
+        // real AJAXOptionsInterface (missing 'PUT' and RequestBodyIgnore) -
+        // using the actual imported interface now instead of a stale copy.
+        let ajaxOptions: AJAXOptionsInterface | null = null;
 
-        if (typeof options === 'object' && options !== null) {
-            isAjax = options.isAjax === true || false;
+        if (
+            typeof options === 'object' &&
+            options !== null &&
+            !(options instanceof HTMLFormElement) &&
+            !(options instanceof HTMLDivElement)
+        ) {
+            // NOTE: `isAjax` is not actually declared on FormConstructorInterface's
+            // object shape (only `form`, `customErrorMessages`, `ajaxOptions` are).
+            // This line has therefore likely always read `undefined` for anyone
+            // passing `{ isAjax: true, ajaxOptions: {...} }` to submit()/the
+            // constructor - the previous `options: any` typing hid this.
+            // Preserved as-is (behavior unchanged) rather than silently inventing
+            // new semantics; worth deciding whether `isAjax` should be added to
+            // FormConstructorInterface, or this line removed, in a follow-up.
+            isAjax = (options as { isAjax?: boolean }).isAjax === true;
             ajaxOptions = options.ajaxOptions || null;
         } else if (formElement) {
             isAjax = formElement.getAttribute('isAjax')?.trim() === "true" || false;
@@ -408,7 +423,7 @@ private async validateResolvedForm(
 
             ajaxOptions = {
                 url,
-                RequestMethod: requestMethod as "GET" | "POST" | "PATCH" | "UPDATE" | "DELETE",
+                RequestMethod: requestMethod as "GET" | "POST" | "PUT" | "PATCH" | "UPDATE" | "DELETE",
                 RequestHeader: Object.keys(requestHeaders).length > 0 ? requestHeaders : undefined,
                 RequestBody: undefined
             };
@@ -663,7 +678,7 @@ private async validateResolvedForm(
      * @param form - The form to read, or its CSS id. Falls back to this instance's `form` if omitted.
      * @returns An object/record of field name → value, or `false` if the form couldn't be resolved.
      */
-    getFormDetails(form: HTMLFormElement | HTMLDivElement | string)
+    getFormDetails(form?: HTMLFormElement | HTMLDivElement | string)
     {
 
         if ( ! form )
@@ -814,6 +829,17 @@ private async validateResolvedForm(
      */
     checkPassword( password: string, minLength: number = 8, maxLength: number = 20, includeSymbolsCheck: boolean = false, userSymbolRegex: RegExp | string = '')
     {
+        // NOTE: the internal checkPassword() (imported above) has a
+        // DIFFERENT parameter order than this public method:
+        //   internal:  (password, includeSymbolsCheck, minLength, maxLength, userSymbolRegex)
+        //   this method: (password, minLength, maxLength, includeSymbolsCheck, userSymbolRegex)
+        // This wrapper intentionally keeps the public signature's more
+        // intuitive (minLength, maxLength, includeSymbolsCheck) order.
+        // If either signature ever changes, this mapping must be updated
+        // to match - a swapped minLength/includeSymbolsCheck here would
+        // silently pass a boolean where a number is expected (or vice
+        // versa) with no compiler error, since both are loosely typed at
+        // this boundary.
         return checkPassword( password, includeSymbolsCheck, minLength, maxLength, userSymbolRegex );
     }
 
@@ -846,28 +872,34 @@ private async validateResolvedForm(
     }
 
     /**
-     * Validates a single input field, via its HTML attributes or an
-     * explicit `options` override.
+     * Validates a single input field, via its HTML attributes or a rule
+     * registered with {@link NFSFU234FormValidation.configureForms}.
      * @param inputField - The input to validate, as an element or its CSS id.
-     * @param options - Overrides for the field's validation rule (`required`, `type`, `minLength`, `maxLength`, `pattern`, `message`, etc.). Defaults to `{}`.
+     * @param options - Call-context options (which form, custom messages, how to display errors). Does NOT accept field-rule fields like `required`/`minLength`/`pattern` - those come only from HTML attributes or `configureForms()`. Defaults to `{}`.
      * @param callback - Optional callback invoked with the result instead of/alongside the returned value.
      * @returns `true` on success, or a `Promise` resolving to an `ErrorMessageInterface` describing the failure.
      */
-    validateInput(inputField: HTMLInputElement | string, options: any = {}, callback?: any)
+    async validateInput(
+        inputField: HTMLInputElement | string,
+        options: FormValidationOptions = {},
+        callback?: (result: ErrorMessageInterface | true) => void
+    ): Promise<ErrorMessageInterface | true>
     {
-        let individualResponseMessage: ErrorMessageInterface | boolean = {  type: 'error', code : 400 };
-
         if ( typeof inputField === 'string' )
         {
             inputField = document.getElementById(inputField) as HTMLInputElement
         }
 
+        let individualResponseMessage: ErrorMessageInterface | true;
+
         if ( ! inputField  )
         {
-            let errorLogLevel = LogLevelInterface;
-
-            individualResponseMessage.message = "The input field you are trying to validate is undefined.";
-            ExceptionHandler("The input field you are trying to validate is undefined.");
+            individualResponseMessage = {
+                type: 'error',
+                code: 400,
+                message: "The input field you are trying to validate is undefined."
+            };
+            ExceptionHandler(individualResponseMessage.message as string);
         }
 
         else
@@ -877,84 +909,133 @@ private async validateResolvedForm(
 
             const validateResponse: string | boolean | ErrorMessageInterface  = validateInput(inputField, options, callback);
 
-            if ( validateResponse === true )
-            {
-                return true;
-            }
-
-            individualResponseMessage = validateResponse as ErrorMessageInterface
+            individualResponseMessage = validateResponse === true
+                ? true
+                : (validateResponse as ErrorMessageInterface);
 
         }
-
-        // let errMsg = validateResponse.message;
 
         if (checkVariableType(callback) === 'function') {
-            const message = callback(individualResponseMessage);
-            // return true;
+            callback!(individualResponseMessage);
         }
 
-        return new Promise((resolve, reject)=>{
-
-            resolve(individualResponseMessage)
-
-        });
-
-        // return validateInput(inputField, options, callback);
+        // Always returns via the implicit Promise from `async` now - no more
+        // "sometimes a bare `true`, sometimes a Promise" inconsistency for
+        // callers awaiting this method.
+        return individualResponseMessage;
     }
 
     /**
      * Validates every input in the form. Returns `true`, or an array of
      * per-field error results.
      * @param form - The form to validate, as an element or its CSS id. Defaults to this instance's `form` if omitted.
-     * @param customErrorMessages - Custom error messages keyed by field name or rule, overriding the defaults.
+     * @param customErrorMessages - Custom error messages keyed by field type/name, overriding the defaults.
      */
-    validateAllInput(form: HTMLFormElement | HTMLDivElement | string, customErrorMessages: any)
+    validateAllInput(form?: HTMLFormElement | HTMLDivElement | string, customErrorMessages?: CustomErrorMessages)
     {
 
         form = form ?? this.form;
-        return validateAllInput(form, customErrorMessages);
+
+        // `form ?? this.form` can still be `undefined` here - `this.form`
+        // is itself optional (e.g. a utility-only instance constructed with
+        // `null`, or no form found automatically). The internal validators
+        // all handle a missing form at runtime already (they return their
+        // own "form does not exist" error), but their parameter types don't
+        // declare `undefined` as accepted, so TypeScript correctly refuses
+        // to let it through un-narrowed. This guard mirrors that same
+        // internal behavior explicitly, which also satisfies the type
+        // checker honestly instead of silencing it with a cast.
+        if (!form) {
+            const message = "The form you are trying to validate does not exist.";
+            ExceptionHandler(message);
+            return [{ message, code: 400 }];
+        }
+
+        // Previously passed `customErrorMessages` directly as the internal
+        // function's second argument - but that function expects a full
+        // `options` object with a *nested* `customErrorMessages` property,
+        // which it then forwards as-is into validateInput() for every
+        // field. Passing the bare dict meant it was silently never read.
+        return validateAllInput(form, { customErrorMessages });
     }
 
     /**
-     * Validates a single radio group by its input name.
+     * Validates a single radio group by its input name, using this
+     * instance's form.
      * @param radioInputField - Any radio input in the group (or its CSS id) - the group is resolved by shared `name`.
-     * @param customErrorMessage - A custom message to use instead of the default, if the group is invalid.
+     * @param customErrorMessage - A message shown if the group is invalid. (The internal validator only supports one message slot here, not one per group name, despite what the group is called.)
      */
-    validateRadio(radioInputField: HTMLInputElement | string, customErrorMessage?: any)
+    validateRadio(radioInputField: HTMLInputElement | string, customErrorMessage?: string)
     {
-        return validateRadio(radioInputField, customErrorMessage);
+        // Previously this passed `customErrorMessage` straight through as
+        // the internal validator's `options` object - but validateRadio()
+        // internally reads `options.form` and `options.customErrorMessages.radio`,
+        // not a bare string. A plain string has neither property, so the
+        // form was never resolved and the custom message never applied.
+        const options: FormValidationOptions = {
+            form: this.form,
+            customErrorMessages: customErrorMessage ? { radio: customErrorMessage } : undefined,
+        };
+        return validateRadio(radioInputField, options);
     }
 
     /**
      * Validates every radio group in the form.
      * @param form - The form to validate. Defaults to this instance's `form` if omitted.
-     * @param customErrorMessage - Custom error messages keyed by radio group name, overriding the defaults.
+     * @param customErrorMessage - A message shown for any invalid radio group in this form. (Same one-slot limitation as {@link validateRadio}.)
      */
-    validateAllRadio(form: HTMLFormElement | HTMLDivElement, customErrorMessage: any)
+    validateAllRadio(form?: HTMLFormElement | HTMLDivElement, customErrorMessage?: string)
     {
         form = form ?? this.form;
-        return validateAllRadio(form, customErrorMessage);
+
+        if (!form) {
+            const message = "The form you are trying to validate does not exist.";
+            ExceptionHandler(message);
+            return [{ message, code: 400 }];
+        }
+
+        // validateAllRadio() internally forwards `options` to validateRadio()
+        // for each group WITHOUT ever setting `options.form` itself (unlike
+        // validateAllCheckbox/validateAllSelect/validateAllTextarea, which
+        // all do this internally) - so it has to happen here instead, or
+        // every group fails with "the form you are trying to validate does
+        // not exist" regardless of what form was passed to this method.
+        const options: FormValidationOptions = {
+            form,
+            customErrorMessages: customErrorMessage ? { radio: customErrorMessage } : undefined,
+        };
+        return validateAllRadio(form, options);
     }
 
     /**
-     * Validates a single checkbox field.
+     * Validates a single checkbox field, using this instance's form.
      * @param checkboxInputField - The checkbox to validate.
-     * @param options - Overrides for the field's validation rule (e.g. `required`).
+     * @param options - Call-context options. `options.customErrorMessages.checkbox` sets the message shown when required and unchecked. Field-level rules (`required`) come from the checkbox's own HTML attribute or `configureForms()`, not from here.
      */
-    validateCheckbox( checkboxInputField: HTMLInputElement, options?: any )
+    validateCheckbox( checkboxInputField: HTMLInputElement, options: FormValidationOptions = {} )
     {
+        // Previously never merged in this.form - validateCheckbox() reads
+        // options.form directly and fails without it, so calling this the
+        // normal way (relying on the instance's form) never worked.
+        options.form = options.form ?? this.form;
         return validateCheckbox(checkboxInputField, options);
     }
 
     /**
      * Validates every checkbox in the form.
      * @param form - The form to validate. Defaults to this instance's `form` if omitted.
-     * @param options - Custom error messages / overrides keyed by field name.
+     * @param options - Call-context options, applied across all checkboxes in the form.
      */
-    validateAllCheckbox(form: HTMLFormElement | HTMLDivElement, options: any)
+    validateAllCheckbox(form?: HTMLFormElement | HTMLDivElement, options?: FormValidationOptions)
     {
 
         form = form ?? this.form;
+
+        if (!form) {
+            const message = "The form you are trying to validate does not exist. 5555 0000";
+            ExceptionHandler(message);
+            return [{ message, code: 400, data: form }];
+        }
 
         return validateAllCheckbox(form, options);
     }
@@ -964,12 +1045,21 @@ private async validateResolvedForm(
      * count, accepted types (`accept`), max size (`maxSizeMB`), and - for
      * images - dimension limits. Async, since checking image dimensions
      * requires decoding the file.
+     *
+     * IMPORTANT: those rule fields (`required`, `accept`, `maxSizeMB`, the
+     * dimension limits, etc.) are read only from a rule registered via
+     * {@link NFSFU234FormValidation.configureForms} - there's no HTML
+     * attribute equivalent for most of them, and passing them in `options`
+     * here has no effect. `options` only controls call context (which form,
+     * custom messages, how errors are displayed).
+     *
      * @param fileInputField - The file input to validate.
-     * @param options - File rule overrides: `required`, `accept`, `maxSizeMB`, `minFiles`, `maxFiles`, `maxWidth`, `maxHeight`, `minWidth`, `minHeight`, and their `*Message` variants.
+     * @param options - Call-context options. `options.customErrorMessages.file` sets the message shown on failure.
      * @returns A `Promise` resolving to `true`, or an `ErrorMessageInterface` describing the failure.
      */
-    validateFile( fileInputField: HTMLInputElement, options?: any )
+    validateFile( fileInputField: HTMLInputElement, options: FormValidationOptions = {} )
     {
+        options.form = options.form ?? this.form;
         return validateFile(fileInputField, options);
     }
 
@@ -977,12 +1067,19 @@ private async validateResolvedForm(
      * Validates every `<input type="file">` field in the form. Async - see
      * {@link validateFile}.
      * @param form - The form to validate. Defaults to this instance's `form` if omitted.
-     * @param options - File rule overrides, applied across all file fields unless a field specifies its own.
+     * @param options - Call-context options, applied across all file fields (does not accept rule fields - see {@link validateFile}).
      * @returns A `Promise` resolving to `true`, or an array of per-field `ErrorMessageInterface` results.
      */
-    validateAllFile(form: HTMLFormElement | HTMLDivElement, options?: any)
+    validateAllFile(form?: HTMLFormElement | HTMLDivElement, options?: FormValidationOptions)
     {
         form = form ?? this.form;
+
+        // Unlike the other validateAll* internals, validateAllFile() treats
+        // a missing form as "nothing to validate" (returns `true`), not an
+        // error - matching that here rather than the pattern used elsewhere.
+        if (!form) {
+            return true;
+        }
 
         return validateAllFile(form, options);
     }
@@ -990,10 +1087,10 @@ private async validateResolvedForm(
     /**
      * Validates a single `<select>` field.
      * @param selectField - The select element to validate.
-     * @param options - Overrides for the field's validation rule (e.g. `required`).
+     * @param options - Call-context options. `options.customErrorMessages.select` sets the message shown when required and no option is selected. Field-level rules (`required`) come from the select's own HTML attribute or `configureForms()`, not from here.
      * @param callback - Optional callback invoked with the result.
      */
-    validateSelect( selectField: HTMLSelectElement, options:any, callback: any)
+    validateSelect( selectField: HTMLSelectElement, options: FormValidationOptions = {}, callback?: (result: ErrorMessageInterface | true) => void)
     {
         options.form = options.form ?? this.form
 
@@ -1003,30 +1100,56 @@ private async validateResolvedForm(
     /**
      * Validates every `<select>` field in the form.
      * @param form - The form to validate.
-     * @param options - Custom error messages / overrides keyed by field name.
+     * @param options - Call-context options, applied across all selects in the form.
      */
-    validateAllSelect(form: HTMLFormElement | HTMLDivElement, options: any)
+    validateAllSelect(form?: HTMLFormElement | HTMLDivElement, options?: FormValidationOptions)
     {
+        // Previously missing: every sibling validateAll* method falls back
+        // to this.form when called without one - this one silently didn't,
+        // so `.validateAllSelect()` with no args passed `undefined` straight
+        // through instead of using the instance's form.
+        form = form ?? this.form;
+
+        if (!form) {
+            const message = "The form you are trying to validate does not exist.";
+            ExceptionHandler(message);
+            return [{ message, code: 400 }];
+        }
+
         return validateAllSelect(form, options);
     }
 
     /**
-     * Validates a single `<textarea>` field.
+     * Validates a single `<textarea>` field, using this instance's form.
      * @param textareaField - The textarea to validate.
-     * @param options - Overrides for the field's validation rule (e.g. `required`, `minLength`, `maxLength`).
+     * @param options - Call-context options. `options.customErrorMessages.textarea` sets the message shown when required and empty. Field-level rules (`required`/`minLength`/`maxLength`) come from the textarea's own HTML attributes or `configureForms()`, not from here.
      */
-    validateTextarea(textareaField: HTMLTextAreaElement, options: any )
+    validateTextarea(textareaField: HTMLTextAreaElement, options: FormValidationOptions = {} )
     {
+        // Same missing-form-merge bug as validateRadio/validateCheckbox -
+        // validateTextarea() reads options.form directly and fails without
+        // it (once includeHTML's default `true` path is reached), so this
+        // never worked when relying on the instance's form.
+        options.form = options.form ?? this.form;
         return validateTextarea(textareaField, options);
     }
 
     /**
      * Validates every `<textarea>` field in the form.
      * @param form - The form to validate.
-     * @param options - Custom error messages / overrides keyed by field name.
+     * @param options - Call-context options, applied across all textareas in the form.
      */
-    validateAllTextarea(form: HTMLFormElement | HTMLDivElement, options: any)
+    validateAllTextarea(form?: HTMLFormElement | HTMLDivElement, options?: FormValidationOptions)
     {
+        // Same missing-fallback issue as validateAllSelect - added here too.
+        form = form ?? this.form;
+
+        if (!form) {
+            const message = "The form you are trying to validate does not exist.";
+            ExceptionHandler(message);
+            return [{ message, code: 400 }];
+        }
+
         return validateAllTextarea(form, options);
     }
 
@@ -1103,7 +1226,7 @@ private async validateResolvedForm(
      * @param u_form - The form to reset, as an element or its CSS id. Defaults to this instance's `form` if omitted.
      * @returns `true` if the form was found and reset.
      */
-    reset(u_form: HTMLFormElement | HTMLDivElement | string): boolean
+    reset(u_form?: HTMLFormElement | HTMLDivElement | string): boolean
     {
 
         let form;

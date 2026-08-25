@@ -80,7 +80,7 @@ The browser example demonstrates the library without React or Next.js.
 
 Official Documentation
 
-[https://form-validation.nforshifu234dev.com](https://form-validation.nforshifu234dev.com)
+[https://formvalidation.nforshifu234dev.com](https://formvalidation.nforshifu234dev.com)
 
 npm
 
