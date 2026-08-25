@@ -70,6 +70,9 @@
       "lib": "dist"
     }
   },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "clean": "npx rimraf dist",
     "build:js": "tsup && node move-types.mjs",

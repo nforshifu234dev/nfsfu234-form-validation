@@ -10,12 +10,12 @@ Built for **Vanilla JavaScript**, **React**, **Next.js**, **Vue**, **Svelte**, *
 
 <br>
 
-[![npm version](https://img.shields.io/npm/v/nfsfu234-form-validation.svg)](https://www.npmjs.com/package/@nfsfu234/form-validation)
-[![npm downloads](https://img.shields.io/npm/dm/nfsfu234-form-validation.svg)](https://www.npmjs.com/package/@nfsfu234/form-validation)
-[![License: MIT](https://img.shields.io/npm/l/nfsfu234-form-validation)](LICENSE)
-[![GitHub Release](https://img.shields.io/github/v/release/NFSFU234FormValidation/nfsfu234-form-validation)](https://github.com/nforshifu234dev/nfsfu234-form-validation/releases)
-[![GitHub Stars](https://img.shields.io/github/stars/NFSFU234FormValidation/nfsfu234-form-validation?style=social)](https://github.com/nforshifu234dev/nfsfu234-form-validation)
-[![GitHub Issues](https://img.shields.io/github/issues/NFSFU234FormValidation/nfsfu234-form-validation)](https://github.com/nforshifu234dev/nfsfu234-form-validation/issues)
+[![npm version](https://img.shields.io/npm/v/%40nfsfu234%2Fform-validation.svg)](https://www.npmjs.com/package/@nfsfu234/form-validation)
+[![npm downloads](https://img.shields.io/npm/dm/%40nfsfu234%2Fform-validation.svg)](https://www.npmjs.com/package/@nfsfu234/form-validation)
+[![License: MIT](https://img.shields.io/npm/l/%40nfsfu234%2Fform-validation.svg)](LICENSE)
+[![GitHub Release](https://github.com/nforshifu234dev/nfsfu234-form-validation)](https://github.com/nforshifu234dev/nfsfu234-form-validation/releases)
+[![GitHub Stars](https://img.shields.io/github/stars/nforshifu234dev/nfsfu234-form-validation?style=social)](https://github.com/nforshifu234dev/nfsfu234-form-validation)
+[![GitHub Issues](https://img.shields.io/github/issues/nforshifu234dev/nfsfu234-form-validation)](https://github.com/nforshifu234dev/nfsfu234-form-validation/issues)
 [![CI](https://github.com/nforshifu234dev/nfsfu234-form-validation/actions/workflows/ci.yml/badge.svg)](https://github.com/nforshifu234dev/nfsfu234-form-validation/actions/workflows/ci.yml)
 
 <br>
