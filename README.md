@@ -13,7 +13,7 @@ Built for **Vanilla JavaScript**, **React**, **Next.js**, **Vue**, **Svelte**, *
 [![npm version](https://img.shields.io/npm/v/%40nfsfu234%2Fform-validation.svg)](https://www.npmjs.com/package/@nfsfu234/form-validation)
 [![npm downloads](https://img.shields.io/npm/dm/%40nfsfu234%2Fform-validation.svg)](https://www.npmjs.com/package/@nfsfu234/form-validation)
 [![License: MIT](https://img.shields.io/npm/l/%40nfsfu234%2Fform-validation.svg)](LICENSE)
-[![GitHub Release](https://github.com/nforshifu234dev/nfsfu234-form-validation)](https://github.com/nforshifu234dev/nfsfu234-form-validation/releases)
+[![GitHub Release](https://img.shields.io/github/v/release/nforshifu234dev/nfsfu234-form-validation)](https://github.com/nforshifu234dev/nfsfu234-form-validation/releases)
 [![GitHub Stars](https://img.shields.io/github/stars/nforshifu234dev/nfsfu234-form-validation?style=social)](https://github.com/nforshifu234dev/nfsfu234-form-validation)
 [![GitHub Issues](https://img.shields.io/github/issues/nforshifu234dev/nfsfu234-form-validation)](https://github.com/nforshifu234dev/nfsfu234-form-validation/issues)
 [![CI](https://github.com/nforshifu234dev/nfsfu234-form-validation/actions/workflows/ci.yml/badge.svg)](https://github.com/nforshifu234dev/nfsfu234-form-validation/actions/workflows/ci.yml)
